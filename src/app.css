@@ -1,0 +1,565 @@
+@import "tailwindcss";
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CBMS Design System - Tailwind v4 Theme Configuration
+   San Jose City LGU Portal - Government Civic Theme
+   Reference: CBMSPortal.html Figma Export
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@theme {
+  /* Typography - matches cbms-tokens.css from prototype */
+  --font-sans: "Public Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-serif: "Source Serif 4", "Source Serif Pro", Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CBMS Design Tokens (CSS Custom Properties)
+   Complete Palette from Figma Reference
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Typography - matches cbms-tokens.css from prototype */
+  --font-size: 15px;
+  --font-sans: "Public Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-serif: "Source Serif 4", "Source Serif Pro", Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* Geometry (Border Radius) */
+  --r-1: 2px;
+  --r-2: 4px;
+  --r-3: 6px;
+  --r-4: 10px;
+  --r-5: 14px;
+
+  /* Hairlines & Borders */
+  --hairline: 1px solid var(--ink-100);
+  --hairline-strong: 1px solid var(--ink-200);
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(10, 22, 38, 0.04), 0 1px 1px rgba(10, 22, 38, 0.03);
+  --shadow-md: 0 2px 6px rgba(10, 22, 38, 0.06), 0 1px 2px rgba(10, 22, 38, 0.04);
+  --shadow-lg: 0 8px 24px rgba(10, 22, 38, 0.10), 0 2px 6px rgba(10, 22, 38, 0.06);
+
+  /* Ink Scale (Neutrals/Text) */
+  --ink-900: #0a1626;
+  --ink-700: #2a3a4f;
+  --ink-500: #5b6779;
+  --ink-400: #7c8898;
+  --ink-300: #a6b0bd;
+  --ink-200: #cfd5de;
+  --ink-100: #e6e9ee;
+  --ink-50:  #f3f5f8;
+
+  /* Navy Scale (Primary Brand) */
+  --navy-900: #061224;
+  --navy-800: #0a1c33;
+  --navy-700: #0e2a4a;
+  --navy-600: #143a63;
+  --navy-500: #25548a;
+  --navy-100: #e4ecf6;
+  --navy-50:  #f0f4fa;
+
+  /* Gold Scale (Accent) */
+  --gold-700: #9a7918;
+  --gold-600: #b58e1d;
+  --gold-500: #c8a24b;
+  --gold-300: #e2c884;
+  --gold-100: #f6ecc8;
+  --gold-50:  #fbf5e1;
+  --sun:      #fbb831;
+
+  /* Surface Colors */
+  --paper:    #ffffff;
+  --canvas:   #fbf5e1;
+  --canvas-2: #f7f2d8;
+  --bone:     #e6e6e0;
+
+  /* Status: OK (Green) */
+  --ok-700:   #15663d;
+  --ok-500:   #1f7a4d;
+  --ok-50:    #e6f3ec;
+
+  /* Status: Warning (Orange/Amber) */
+  --warn-700: #8f5e10;
+  --warn-500: #b6791a;
+  --warn-50:  #fbf1de;
+
+  /* Status: Bad (Red) */
+  --bad-700:  #8a1b30;
+  --bad-500:  #b0263c;
+  --bad-50:   #fbe7eb;
+
+  /* Semantic Tokens */
+  --background: #fbf5e1;
+  --foreground: #0a1626;
+  --card: #ffffff;
+  --card-foreground: #0a1626;
+  --popover: #ffffff;
+  --popover-foreground: #0a1626;
+
+  /* Primary - Navy Blue */
+  --primary: #0e2a4a;
+  --primary-foreground: #ffffff;
+  --primary-dark: #0a1c33;
+
+  /* Secondary - Light Cream */
+  --secondary: #fbf5e1;
+  --secondary-foreground: #0a1626;
+
+  /* Accent - Gold */
+  --accent: #c8a24b;
+  --accent-dark: #b58e1d;
+  --accent-foreground: #0a1626;
+
+  /* Muted */
+  --muted: #fbf5e1;
+  --muted-foreground: #143a63;
+
+  /* Destructive */
+  --destructive: #d4183d;
+  --destructive-foreground: #ffffff;
+
+  /* Borders & Inputs */
+  --border: #e6e9ee;
+  --input: transparent;
+  --input-background: #ffffff;
+  --switch-background: #e6e9ee;
+
+  /* Font Weights */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* Ring (focus states) */
+  --ring: #c8a24b;
+
+  /* Chart Colors - Government Theme */
+  --chart-1: #0e2a4a;
+  --chart-2: #c8a24b;
+  --chart-3: #4a7c59;
+  --chart-4: #8b4513;
+  --chart-5: #143a63;
+
+  /* Radius */
+  --radius: 0.5rem;
+  --radius-sm: 0.25rem;
+  --radius-lg: 0.75rem;
+
+  /* Sidebar - Dark Navy Theme */
+  --sidebar: #0a1c33;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #c8a24b;
+  --sidebar-primary-foreground: #0a1c33;
+  --sidebar-accent: #143a63;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #143a63;
+  --sidebar-ring: #c8a24b;
+  --sidebar-muted: rgba(255, 255, 255, 0.6);
+}
+
+.dark {
+  --background: #0a1626;
+  --foreground: #f7f7f3;
+  --card: #0a1c33;
+  --card-foreground: #f7f7f3;
+  --popover: #0a1c33;
+  --popover-foreground: #f7f7f3;
+  --primary: #c8a24b;
+  --primary-foreground: #0a1c33;
+  --primary-dark: #0a1626;
+  --secondary: #143a63;
+  --secondary-foreground: #f7f7f3;
+  --muted: #143a63;
+  --muted-foreground: #e6e9ee;
+  --accent: #c8a24b;
+  --accent-foreground: #0a1c33;
+  --destructive: #ff6b6b;
+  --destructive-foreground: #0a1c33;
+  --border: #143a63;
+  --input: #143a63;
+  --ring: #c8a24b;
+  --chart-1: #c8a24b;
+  --chart-2: #4a9eff;
+  --chart-3: #4ade80;
+  --chart-4: #f472b6;
+  --chart-5: #fb923c;
+  --sidebar: #0a1626;
+  --sidebar-foreground: #f7f7f3;
+  --sidebar-primary: #c8a24b;
+  --sidebar-primary-foreground: #0a1c33;
+  --sidebar-accent: #143a63;
+  --sidebar-accent-foreground: #f7f7f3;
+  --sidebar-border: #143a63;
+  --sidebar-ring: #c8a24b;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Base Layer - Global Styles
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@layer base {
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--ink-900);
+    background: var(--canvas);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  button {
+    font: inherit;
+    cursor: pointer;
+    border: 0;
+    background: none;
+    color: inherit;
+  }
+
+  input, select, textarea {
+    font: inherit;
+    color: inherit;
+  }
+
+  a {
+    color: inherit;
+  }
+
+  * {
+    border-color: var(--border);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CBMS Utility Classes - From Figma Reference Design System
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@layer components {
+  /* Typography utilities - matches cbms-tokens.css */
+  .tabular { font-variant-numeric: tabular-nums; }
+  .font-sans { font-family: var(--font-sans) !important; }
+  .font-serif { font-family: var(--font-serif) !important; }
+  .font-mono { font-family: var(--font-mono) !important; }
+
+  /* Flag rule */
+  .flag-rule {
+    display: flex;
+    height: 2px;
+    width: 100%;
+  }
+  .flag-rule > span:nth-child(1) { background: var(--navy-700); flex: 2; }
+  .flag-rule > span:nth-child(2) { background: var(--bad-500); flex: 2; }
+  .flag-rule > span:nth-child(3) { background: var(--gold-600); flex: 1; }
+
+  /* Republic chrome (used at top of formal screens) */
+  .gov-chrome {
+    background: var(--navy-900);
+    color: #e3e7ee;
+    font-size: 12px;
+    letter-spacing: 0.02em;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 24px;
+  }
+  .gov-chrome .left { display: flex; align-items: center; gap: 10px; }
+  .gov-chrome .seal {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, var(--gold-300), var(--gold-700));
+    border: 1px solid var(--gold-700);
+  }
+
+  /* Eyebrow label - Government civic style */
+  .eyebrow {
+    font-family: 'Public Sans', -apple-system, sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold-700);
+    font-weight: 600;
+  }
+
+  /* Reusable card */
+  .card {
+    background: var(--paper);
+    border: var(--hairline);
+    border-radius: var(--r-3);
+    box-shadow: var(--shadow-sm);
+  }
+  .card-pad { padding: 20px 24px; }
+  .card-header {
+    padding: 16px 20px;
+    border-bottom: var(--hairline);
+  }
+  .card-body { padding: 20px; }
+
+  /* Pill / chip */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 8px;
+    font-size: 12px;
+    font-weight: 500;
+    border-radius: 999px;
+    background: var(--ink-50);
+    color: var(--ink-700);
+    border: 1px solid var(--ink-100);
+  }
+  .chip-ok   { background: var(--ok-50);   color: var(--ok-700);   border-color: #d1e7d9; }
+  .chip-warn { background: var(--warn-50); color: var(--warn-700); border-color: #efdcb1; }
+  .chip-bad  { background: var(--bad-50);  color: var(--bad-700);  border-color: #efc4cc; }
+  .chip-navy { background: var(--navy-50); color: var(--navy-700); border-color: #d6dff0; }
+  .chip-gold { background: var(--gold-50); color: var(--gold-700); border-color: #ebd9a8; }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 40px;
+    padding: 0 16px;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: var(--r-2);
+    border: 1px solid transparent;
+    transition: background-color .15s, border-color .15s, color .15s;
+    cursor: pointer;
+  }
+  .btn-primary { background: var(--navy-700); color: #fff; }
+  .btn-primary:hover { background: var(--navy-800); }
+  .btn-ghost { background: transparent; color: var(--ink-700); border-color: var(--ink-200); }
+  .btn-ghost:hover { background: var(--ink-50); }
+  .btn-gold  { background: var(--gold-600); color: var(--navy-900); }
+  .btn-gold:hover { background: var(--gold-500); }
+  .btn-danger { background: var(--bad-500); color: #fff; }
+  .btn-danger:hover { background: var(--bad-700); }
+  .btn-sm { height: 32px; padding: 0 12px; font-size: 13px; }
+  .btn-xs { height: 26px; padding: 0 8px; font-size: 12px; }
+
+  /* Status badges */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    border-radius: var(--r-2);
+    text-transform: uppercase;
+  }
+  .badge-ok { background: var(--ok-50); color: var(--ok-700); }
+  .badge-warn { background: var(--warn-50); color: var(--warn-700); }
+  .badge-bad { background: var(--bad-50); color: var(--bad-700); }
+  .badge-navy { background: var(--navy-50); color: var(--navy-700); }
+  .badge-gold { background: var(--gold-50); color: var(--gold-700); }
+
+  /* Tables */
+  .table-cbms {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .table-cbms th {
+    text-align: left;
+    padding: 12px 16px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-500);
+    border-bottom: var(--hairline-strong);
+    background: var(--ink-50);
+  }
+  .table-cbms td {
+    padding: 12px 16px;
+    font-size: 14px;
+    color: var(--ink-900);
+    border-bottom: var(--hairline);
+  }
+  .table-cbms tr:hover td {
+    background: var(--gold-50);
+  }
+
+  /* Form inputs */
+  .input-cbms {
+    width: 100%;
+    height: 40px;
+    padding: 0 12px;
+    font-size: 14px;
+    color: var(--ink-900);
+    background: var(--paper);
+    border: var(--hairline-strong);
+    border-radius: var(--r-2);
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .input-cbms:focus {
+    outline: none;
+    border-color: var(--navy-600);
+    box-shadow: 0 0 0 3px rgba(20, 58, 99, 0.15);
+  }
+  .input-cbms::placeholder {
+    color: var(--ink-400);
+  }
+
+  /* Select inputs */
+  .select-cbms {
+    width: 100%;
+    height: 40px;
+    padding: 0 12px;
+    font-size: 14px;
+    color: var(--ink-900);
+    background: var(--paper);
+    border: var(--hairline-strong);
+    border-radius: var(--r-2);
+    cursor: pointer;
+    transition: border-color .15s;
+  }
+  .select-cbms:focus {
+    outline: none;
+    border-color: var(--navy-600);
+    box-shadow: 0 0 0 3px rgba(20, 58, 99, 0.15);
+  }
+
+  /* Section headers - Source Serif 4 */
+  .section-title {
+    font-family: "Source Serif 4", Georgia, serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--ink-900);
+    margin-bottom: 4px;
+  }
+  .section-subtitle {
+    font-size: 13px;
+    color: var(--ink-500);
+  }
+
+  /* Stat cards */
+  .stat-card {
+    background: var(--paper);
+    border: var(--hairline);
+    border-radius: var(--r-3);
+    padding: 20px;
+    box-shadow: var(--shadow-sm);
+  }
+  .stat-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-500);
+  }
+  .stat-value {
+    font-family: var(--font-mono);
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--ink-900);
+    line-height: 1.2;
+    margin-top: 8px;
+  }
+  .stat-change {
+    font-size: 12px;
+    margin-top: 4px;
+  }
+  .stat-change-up { color: var(--ok-500); }
+  .stat-change-down { color: var(--bad-500); }
+}
+
+/* Focus rings */
+input:focus, select:focus, textarea:focus, button:focus-visible {
+  outline: 2px solid rgba(20, 58, 99, 0.35);
+  outline-offset: 1px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CBMS Typography Override - Ensure Source Serif 4 for headings
+   Placed outside @layer for higher specificity in cascade
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+h1, h2, h3,
+.font-serif,
+[class*="font-serif"] {
+  font-family: 'Source Serif 4', 'Source Serif Pro', Georgia, serif !important;
+}
+
+/* Also target any element with inline font-family containing "Serif" */
+[style*="Serif"] {
+  font-family: 'Source Serif 4', 'Source Serif Pro', Georgia, serif !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Recharts Font Override - Fix Proxima-Nova error
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Override all Recharts text elements */
+.recharts-wrapper,
+.recharts-surface,
+.recharts-layer,
+.recharts-text,
+.recharts-cartesian-axis-tick-value,
+.recharts-legend-item-text,
+.recharts-tooltip-label,
+.recharts-tooltip-item,
+.recharts-tooltip-item-name,
+.recharts-tooltip-item-value,
+.recharts-label,
+.recharts-pie-label-text {
+  font-family: var(--font-sans) !important;
+}
+
+/* Recharts default text override */
+.recharts-default-tooltip {
+  font-family: var(--font-sans) !important;
+}
+
+/* SVG text elements within Recharts */
+.recharts-wrapper text,
+.recharts-wrapper tspan {
+  font-family: var(--font-sans) !important;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--ink-50);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--ink-300);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--ink-400);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Typography Override - Ensure Source Serif 4 for headings
+   Applied outside @layer for higher cascade specificity
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+h1, h2, h3 {
+  font-family: "Source Serif 4", "Source Serif Pro", Georgia, serif;
+}
+
+/* Elements with Source Serif inline styles */
+[style*="Source Serif"] {
+  font-family: "Source Serif 4", "Source Serif Pro", Georgia, serif !important;
+}
+
+/* Utility class for serif font */
+.font-serif {
+  font-family: "Source Serif 4", "Source Serif Pro", Georgia, serif !important;
+}
