@@ -3,6 +3,7 @@ import { DataProvider } from './context/DataContext';
 import { Toaster } from './components/ui/sonner';
 import { LoginPage } from './components/LoginPage';
 import { Dashboard } from './components/Dashboard';
+import { MayorDashboard } from './components/MayorDashboard';
 import { DataCollection } from './components/DataCollection';
 import { Analytics } from './components/Analytics';
 import { Reports } from './components/Reports';
@@ -269,7 +270,7 @@ function AppContent() {
 
         {/* Main Content */}
         <main className="flex-1 p-4 md:p-6 pt-20 lg:pt-6 overflow-y-auto overflow-x-hidden">
-          {currentView === 'dashboard' && <Dashboard />}
+          {currentView === 'dashboard' && <MayorDashboard />}
           {currentView === 'collection' && permissions.canCollectData && <DataCollection />}
           {currentView === 'households' && permissions.canViewReports && <HouseholdList />}
           {currentView === 'disaster' && permissions.canAccessDisasterRisk && <DisasterRisk />}

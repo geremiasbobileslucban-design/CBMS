@@ -73,6 +73,18 @@ export const mockUsers: User[] = [
     lastLogin: '2024-01-15T10:30:00',
     createdAt: '2023-05-01T00:00:00',
   },
+  {
+    id: '7',
+    username: 'mayor.sjc',
+    email: 'mayor@sjc.gov.ph',
+    fullName: 'Hon. Renato Dizon',
+    role: 'Mayor',
+    lgu: 'San Jose City',
+    province: 'Nueva Ecija',
+    isActive: true,
+    lastLogin: '2024-02-01T08:00:00',
+    createdAt: '2023-01-01T00:00:00',
+  },
 ];
 
 // Demo credentials for testing
@@ -82,4 +94,5 @@ export const demoCredentials = {
   processor: { username: 'processor.sjc', password: 'process123' },
   enumerator: { username: 'enum.caanawan', password: 'enum123' },
   planning: { username: 'planning.sjc', password: 'plan123' },
+  mayor: { username: 'mayor.sjc', password: 'mayor123' },
 };

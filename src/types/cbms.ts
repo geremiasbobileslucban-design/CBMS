@@ -22,7 +22,7 @@ export interface VulnerableMember {
   name: string;
   relationship: string;
   age: number;
-  type: 'Elderly' | 'PWD' | 'Pregnant' | 'Infant' | 'Chronic Illness' | 'Solo Parent';
+  type: 'Elderly' | 'PWD' | 'Pregnant' | 'Infant' | 'Chronic Illness' | 'Solo Parent' | 'Lactating' | 'OSY';
   specialNeeds?: string;
 }
 
@@ -33,6 +33,7 @@ export interface EvacuationReadiness {
   registeredWithBarangay: boolean;
   hasEmergencyContact: boolean;
   nearestEvacuationCenter?: string;
+  distanceToEvacuationCenter?: number; // in km
 }
 
 // Risk Zone for mapping
@@ -91,6 +92,82 @@ export interface BeneficiaryEnrollment {
   notes?: string;
 }
 
+// Civil Status options
+export type CivilStatus = 'Single' | 'Married' | 'Widowed' | 'Separated' | 'Divorced' | 'Live-in';
+
+// PhilHealth Status options
+export type PhilHealthStatus = 'Member' | 'Dependent' | 'Indigent' | 'None';
+
+// Disability Type options
+export type DisabilityType = 'Physical' | 'Visual' | 'Hearing' | 'Mental' | 'Psychosocial' | 'Learning' | 'Multiple' | 'None';
+
+// Nutritional Status options
+export type NutritionalStatus = 'Normal' | 'Underweight' | 'Severely Underweight' | 'Overweight' | 'Obese' | 'Stunted' | 'Wasted';
+
+// Literacy Status options
+export type LiteracyStatus = 'Can read and write' | 'Can read only' | 'Cannot read or write';
+
+// School Type options
+export type SchoolType = 'Public' | 'Private' | 'SUC' | 'LUC';
+
+// Water Source options
+export type WaterSource = 'Piped Water' | 'Deep Well' | 'Shallow Well' | 'Spring' | 'River/Stream' | 'Rainwater' | 'Bottled/Refilling';
+
+// Income Source options
+export type IncomeSource = 'Salary/Wage' | 'Business' | 'Farming' | 'Fishing' | 'Remittance' | 'Pension' | 'Government Aid' | 'Others';
+
+// Unified Household Member (replaces HeadOfFamily and FamilyMember)
+export interface HouseholdMember {
+  id: string;
+  headOfFamilyId?: string; // Links family member to their head of family
+
+  // Basic Information
+  lastName: string;
+  firstName: string;
+  middleName?: string;
+  suffix?: string;
+  birthDate?: string;
+  age: number;
+  gender: 'Male' | 'Female';
+  civilStatus?: CivilStatus;
+  relationship: string; // 'Head' for head of household
+  philsysNumber?: string;
+  contactNumber?: string;
+
+  // Employment & Income
+  employmentStatus: string;
+  occupation?: string;
+  monthlyIncome: number;
+  incomeSource?: IncomeSource;
+
+  // Health Profile
+  philHealthStatus?: PhilHealthStatus;
+  hasDisability: boolean;
+  disabilityType?: DisabilityType;
+  isSeniorCitizen?: boolean; // auto-computed from age >= 60
+  isSoloParent?: boolean;
+  hasChronicIllness?: boolean;
+  isPregnant?: boolean;
+  isLactating?: boolean;
+
+  // Nutrition (for children 0-5 and pregnant)
+  weight?: number; // in kg
+  height?: number; // in cm
+  bmi?: number; // computed
+  nutritionalStatus?: NutritionalStatus;
+
+  // Education Profile
+  educationLevel: string;
+  literacyStatus?: LiteracyStatus;
+  isCurrentlyAttendingSchool?: boolean;
+  currentGradeLevel?: string;
+  schoolName?: string;
+  schoolType?: SchoolType;
+  isScholarshipRecipient?: boolean;
+  isOutOfSchoolYouth?: boolean; // ages 15-30 not attending
+}
+
+// Legacy interfaces for backward compatibility
 export interface HeadOfFamily {
   id: string;
   name: string;
@@ -118,28 +195,58 @@ export interface FamilyMember {
 // Extended Household with new fields
 export interface Household {
   id: string;
+
+  // Location Information
   barangay: string;
+  pupisSitio?: string; // NEW: Purok/Sitio
+  address?: string; // NEW: Complete address
   householdNumber: string;
+  location?: GeoLocation;
+  contactNumber?: string; // NEW: Household contact
+
+  // Summary fields (computed)
   headOfFamily: string;
   totalMembers: number;
   monthlyIncome: number;
-  employmentStatus: string;
+
+  // Economic Assessment
+  foodExpenditure?: number; // NEW
+  nonFoodExpenditure?: number; // NEW
+  povertyLevel: 'Non-Poor' | 'Poor' | 'Subsistence Poor';
+
+  // Housing
   housingType: string;
+  waterSource?: WaterSource; // NEW: replaces accessToWater boolean
+
+  // Basic Services Access
   accessToWater: boolean;
   accessToElectricity: boolean;
   accessToInternet: boolean;
+  accessToHealthFacility?: boolean; // NEW
+  accessToSanitaryToilet?: boolean; // NEW
+  accessToPublicTransportation?: boolean; // NEW
+  accessToWasteCollection?: boolean; // NEW
   healthInsurance: boolean;
+
+  // Legacy fields
+  employmentStatus: string;
   educationLevel: string;
   disasterVulnerability: 'Low' | 'Medium' | 'High';
-  povertyLevel: 'Non-Poor' | 'Poor' | 'Subsistence Poor';
   dateCollected: string;
-  // New fields for enhanced features
-  location?: GeoLocation;
-  disasterRisk?: DisasterRiskProfile; // Wait, let's keep existing fields
+
+  // Disaster Risk
+  disasterRisk?: DisasterRiskProfile;
   disasterRiskProfile?: DisasterRiskProfile;
   vulnerableMembers?: VulnerableMember[];
   evacuationReadiness?: EvacuationReadiness;
-  programEnrollments?: string[]; // Array of program IDs
+
+  // Program Enrollments
+  programEnrollments?: string[];
+
+  // Members - NEW unified member list
+  members?: HouseholdMember[];
+
+  // Legacy member fields (for backward compatibility)
   headsOfFamily?: HeadOfFamily[];
   familyMembers?: FamilyMember[];
 }
@@ -175,3 +282,89 @@ export interface PovertyIndicator {
   poor: number;
   nonPoor: number;
 }
+
+// Dropdown Options Export (for form use)
+export const CIVIL_STATUS_OPTIONS: CivilStatus[] = ['Single', 'Married', 'Widowed', 'Separated', 'Divorced', 'Live-in'];
+
+export const PHILHEALTH_STATUS_OPTIONS: PhilHealthStatus[] = ['Member', 'Dependent', 'Indigent', 'None'];
+
+export const DISABILITY_TYPE_OPTIONS: DisabilityType[] = ['None', 'Physical', 'Visual', 'Hearing', 'Mental', 'Psychosocial', 'Learning', 'Multiple'];
+
+export const NUTRITIONAL_STATUS_OPTIONS: NutritionalStatus[] = ['Normal', 'Underweight', 'Severely Underweight', 'Overweight', 'Obese', 'Stunted', 'Wasted'];
+
+export const LITERACY_STATUS_OPTIONS: LiteracyStatus[] = ['Can read and write', 'Can read only', 'Cannot read or write'];
+
+export const SCHOOL_TYPE_OPTIONS: SchoolType[] = ['Public', 'Private', 'SUC', 'LUC'];
+
+export const WATER_SOURCE_OPTIONS: WaterSource[] = ['Piped Water', 'Deep Well', 'Shallow Well', 'Spring', 'River/Stream', 'Rainwater', 'Bottled/Refilling'];
+
+export const INCOME_SOURCE_OPTIONS: IncomeSource[] = ['Salary/Wage', 'Business', 'Farming', 'Fishing', 'Remittance', 'Pension', 'Government Aid', 'Others'];
+
+export const RELATIONSHIP_OPTIONS = [
+  'Head',
+  'Spouse',
+  'Son',
+  'Daughter',
+  'Father',
+  'Mother',
+  'Brother',
+  'Sister',
+  'Grandparent',
+  'Grandchild',
+  'In-Law',
+  'Other Relative',
+  'Non-Relative',
+];
+
+export const EMPLOYMENT_STATUS_OPTIONS = [
+  'Employed',
+  'Self-Employed',
+  'Unemployed',
+  'Student',
+  'Retired',
+  'OFW',
+  'Housewife/Househusband',
+  'Not Applicable (Minor)',
+];
+
+export const EDUCATION_LEVEL_OPTIONS = [
+  'No Formal Education',
+  'Elementary',
+  'High School',
+  'Vocational',
+  'College',
+  'Post-Graduate',
+  'Not Applicable',
+];
+
+export const GRADE_LEVEL_OPTIONS = [
+  'Kinder',
+  'Grade 1',
+  'Grade 2',
+  'Grade 3',
+  'Grade 4',
+  'Grade 5',
+  'Grade 6',
+  'Grade 7',
+  'Grade 8',
+  'Grade 9',
+  'Grade 10',
+  'Grade 11',
+  'Grade 12',
+  'College 1st Year',
+  'College 2nd Year',
+  'College 3rd Year',
+  'College 4th Year',
+  'College 5th Year',
+  'Vocational',
+  'ALS',
+];
+
+export const HOUSING_TYPE_OPTIONS = [
+  'Concrete',
+  'Mixed (Semi-Concrete)',
+  'Light Materials',
+  'Makeshift',
+];
+
+export const SUFFIX_OPTIONS = ['', 'Jr.', 'Sr.', 'II', 'III', 'IV', 'V'];

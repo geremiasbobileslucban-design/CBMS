@@ -1,9 +1,10 @@
-export type UserRole = 
+export type UserRole =
   | 'PSA Administrator'
   | 'LGU CBMS Focal Person'
   | 'Data Processor'
   | 'Enumerator'
-  | 'Planning Officer';
+  | 'Planning Officer'
+  | 'Mayor';
 
 export interface User {
   id: string;
@@ -94,5 +95,17 @@ export const rolePermissions: Record<UserRole, {
     canManageBeneficiaries: true,
     canViewBeneficiaries: true,
     accessLevel: 'LGU',
+  },
+  'Mayor': {
+    canCollectData: false,
+    canProcessData: false,
+    canViewReports: true,
+    canManageUsers: false,
+    canExportData: true,
+    canAccessAnalytics: true,
+    canAccessDisasterRisk: true,
+    canManageBeneficiaries: false,
+    canViewBeneficiaries: true,
+    accessLevel: 'City',
   },
 };

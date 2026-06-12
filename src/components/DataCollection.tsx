@@ -1,48 +1,105 @@
-import React, { useState } from 'react';
-import { Save, X, ChevronRight, ChevronLeft, Check, User, Home, Shield, Plus, Trash2, Users } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import {
+  Save, ChevronRight, ChevronLeft, Check, User, Home, Shield, Plus, Trash2,
+  Users, MapPin, Phone, Briefcase, Heart, GraduationCap, ChevronDown, ChevronUp,
+  AlertTriangle, Building2, Droplets, Zap, Wifi, Truck, Stethoscope
+} from 'lucide-react';
 import { toast } from "sonner";
 import { barangays } from '../data/mockData';
-import { Household, GeoLocation, DisasterRiskProfile, VulnerableMember, EvacuationReadiness, RiskLevel, HeadOfFamily, FamilyMember } from '../types/cbms';
+import {
+  Household, GeoLocation, DisasterRiskProfile, VulnerableMember, EvacuationReadiness,
+  RiskLevel, HouseholdMember,
+  CIVIL_STATUS_OPTIONS, PHILHEALTH_STATUS_OPTIONS, DISABILITY_TYPE_OPTIONS,
+  NUTRITIONAL_STATUS_OPTIONS, LITERACY_STATUS_OPTIONS, SCHOOL_TYPE_OPTIONS,
+  WATER_SOURCE_OPTIONS, INCOME_SOURCE_OPTIONS, RELATIONSHIP_OPTIONS,
+  EMPLOYMENT_STATUS_OPTIONS, EDUCATION_LEVEL_OPTIONS, GRADE_LEVEL_OPTIONS,
+  HOUSING_TYPE_OPTIONS, SUFFIX_OPTIONS, WaterSource, IncomeSource
+} from '../types/cbms';
 import { useData } from '../context/DataContext';
 import { GPSCapture } from './gis';
 
-type Step = 1 | 2 | 3 | 4 | 5;
+type Step = 1 | 2 | 3 | 4 | 5 | 6;
+type MemberTab = 'basic' | 'employment' | 'health' | 'education';
+
+// Helper to create empty member
+const createEmptyMember = (isHead: boolean = false, headOfFamilyId?: string): HouseholdMember => ({
+  id: `member-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+  headOfFamilyId: isHead ? undefined : headOfFamilyId,
+  lastName: '',
+  firstName: '',
+  middleName: '',
+  suffix: '',
+  birthDate: '',
+  age: 0,
+  gender: 'Male',
+  civilStatus: 'Single',
+  relationship: isHead ? 'Head' : '',
+  philsysNumber: '',
+  contactNumber: '',
+  employmentStatus: isHead ? '' : 'Not Applicable (Minor)',
+  occupation: '',
+  monthlyIncome: 0,
+  incomeSource: undefined,
+  philHealthStatus: 'None',
+  hasDisability: false,
+  disabilityType: 'None',
+  isSeniorCitizen: false,
+  isSoloParent: false,
+  hasChronicIllness: false,
+  isPregnant: false,
+  isLactating: false,
+  weight: undefined,
+  height: undefined,
+  bmi: undefined,
+  nutritionalStatus: undefined,
+  educationLevel: '',
+  literacyStatus: 'Can read and write',
+  isCurrentlyAttendingSchool: false,
+  currentGradeLevel: '',
+  schoolName: '',
+  schoolType: undefined,
+  isScholarshipRecipient: false,
+  isOutOfSchoolYouth: false,
+});
 
 export function DataCollection() {
   const { addHousehold, evacuationCenters } = useData();
   const [currentStep, setCurrentStep] = useState<Step>(1);
+  const [expandedMemberId, setExpandedMemberId] = useState<string | null>(null);
+  const [activeMemberTab, setActiveMemberTab] = useState<MemberTab>('basic');
 
-  // Basic household info
-  const [formData, setFormData] = useState({
+  // Step 1: Household Information
+  const [householdInfo, setHouseholdInfo] = useState({
     barangay: '',
+    purokSitio: '',
+    address: '',
     householdNumber: '',
+    contactNumber: '',
+  });
+  const [location, setLocation] = useState<GeoLocation | undefined>();
+
+  // Step 2: Household Members
+  const [members, setMembers] = useState<HouseholdMember[]>([createEmptyMember(true)]);
+
+  // Step 3: Economic & Services
+  const [economicData, setEconomicData] = useState({
     housingType: '',
+    waterSource: '' as WaterSource | '',
+    foodExpenditure: 0,
+    nonFoodExpenditure: 0,
+  });
+  const [services, setServices] = useState({
     accessToWater: false,
     accessToElectricity: false,
     accessToInternet: false,
+    accessToHealthFacility: false,
+    accessToSanitaryToilet: false,
+    accessToPublicTransportation: false,
+    accessToWasteCollection: false,
     healthInsurance: false,
-    disasterVulnerability: 'Low' as 'Low' | 'Medium' | 'High',
   });
 
-  // Heads of family with economic info (can have multiple in extended families)
-  const [headsOfFamily, setHeadsOfFamily] = useState<HeadOfFamily[]>([
-    {
-      id: `hof-${Date.now()}`,
-      name: '',
-      age: 0,
-      gender: 'Male',
-      employmentStatus: '',
-      monthlyIncome: 0,
-      educationLevel: '',
-      occupation: '',
-    }
-  ]);
-
-  // Family members (dependents) with same details
-  const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([]);
-
-  // Extended disaster risk data
-  const [location, setLocation] = useState<GeoLocation | undefined>();
+  // Step 4: Disaster Risk
   const [disasterRisk, setDisasterRisk] = useState<DisasterRiskProfile>({
     floodRisk: 'Low',
     landslideRisk: 'Low',
@@ -50,16 +107,73 @@ export function DataCollection() {
     fireRisk: 'Low',
     overallRisk: 'Low',
   });
-  const [vulnerableMembers, setVulnerableMembers] = useState<VulnerableMember[]>([]);
   const [evacuationReadiness, setEvacuationReadiness] = useState<EvacuationReadiness>({
     hasEmergencyKit: false,
     knowsEvacuationRoute: false,
+    hasEvacuationPlan: false,
+    registeredWithBarangay: false,
     hasEmergencyContact: false,
     nearestEvacuationCenter: '',
-    estimatedEvacuationTime: 0,
+    distanceToEvacuationCenter: undefined,
   });
 
-  // Calculate overall disaster risk from individual risks
+  // Steps configuration
+  const steps = [
+    { id: 1, label: 'Household', icon: MapPin },
+    { id: 2, label: 'Head of Family', icon: User },
+    { id: 3, label: 'Family Members', icon: Users },
+    { id: 4, label: 'Economic', icon: Briefcase },
+    { id: 5, label: 'Risk', icon: Shield },
+    { id: 6, label: 'Review', icon: Check },
+  ];
+
+  // Computed values
+  const totalMembers = members.length;
+  const totalIncome = members.reduce((sum, m) => sum + (m.monthlyIncome || 0), 0);
+  const headOfFamily = members.find(m => m.relationship === 'Head');
+  const headName = headOfFamily ? `${headOfFamily.firstName} ${headOfFamily.lastName}`.trim() : '';
+
+  const povertyLevel = useMemo(() => {
+    const perCapitaIncome = totalIncome / Math.max(totalMembers, 1);
+    if (perCapitaIncome < 2000) return 'Subsistence Poor';
+    if (perCapitaIncome < 3500) return 'Poor';
+    return 'Non-Poor';
+  }, [totalIncome, totalMembers]);
+
+  // Calculate vulnerable members from member data
+  const vulnerableMembers = useMemo((): VulnerableMember[] => {
+    const vulnerable: VulnerableMember[] = [];
+    members.forEach(m => {
+      const name = `${m.firstName} ${m.lastName}`.trim();
+      if (m.age >= 60) {
+        vulnerable.push({ id: m.id, name, relationship: m.relationship, age: m.age, type: 'Elderly' });
+      }
+      if (m.hasDisability && m.disabilityType !== 'None') {
+        vulnerable.push({ id: `${m.id}-pwd`, name, relationship: m.relationship, age: m.age, type: 'PWD' });
+      }
+      if (m.isPregnant) {
+        vulnerable.push({ id: `${m.id}-preg`, name, relationship: m.relationship, age: m.age, type: 'Pregnant' });
+      }
+      if (m.isLactating) {
+        vulnerable.push({ id: `${m.id}-lact`, name, relationship: m.relationship, age: m.age, type: 'Lactating' });
+      }
+      if (m.age <= 5) {
+        vulnerable.push({ id: `${m.id}-infant`, name, relationship: m.relationship, age: m.age, type: 'Infant' });
+      }
+      if (m.isSoloParent) {
+        vulnerable.push({ id: `${m.id}-solo`, name, relationship: m.relationship, age: m.age, type: 'Solo Parent' });
+      }
+      if (m.hasChronicIllness) {
+        vulnerable.push({ id: `${m.id}-chronic`, name, relationship: m.relationship, age: m.age, type: 'Chronic Illness' });
+      }
+      if (m.isOutOfSchoolYouth) {
+        vulnerable.push({ id: `${m.id}-osy`, name, relationship: m.relationship, age: m.age, type: 'OSY' });
+      }
+    });
+    return vulnerable;
+  }, [members]);
+
+  // Calculate overall disaster risk
   const calculateOverallRisk = (risks: DisasterRiskProfile): RiskLevel => {
     const levels: Record<RiskLevel, number> = { Low: 1, Medium: 2, High: 3, 'Very High': 3.5, Critical: 4 };
     const avgScore = (
@@ -74,1120 +188,1328 @@ export function DataCollection() {
     return 'Low';
   };
 
-  // Calculate totals
-  const totalMembers = headsOfFamily.length + familyMembers.length;
-  const totalIncome = headsOfFamily.reduce((sum: number, h: HeadOfFamily) => sum + (h.monthlyIncome || 0), 0) +
-                      familyMembers.reduce((sum: number, m: FamilyMember) => sum + (m.monthlyIncome || 0), 0);
-  const primaryHead = headsOfFamily[0]?.name || ''; // First head is considered primary
+  // Get heads of family for dropdown
+  const headsOfFamily = members.filter(m => m.relationship === 'Head');
 
-  const steps = [
-    { id: 1, label: 'Basic Info', icon: User },
-    { id: 2, label: 'Heads of Family', icon: Users },
-    { id: 3, label: 'Family Members', icon: Users },
-    { id: 4, label: 'Housing', icon: Home },
-    { id: 5, label: 'Risk', icon: Shield },
-  ];
-
-  const calculatePovertyLevel = (income: number, members: number): 'Non-Poor' | 'Poor' | 'Subsistence Poor' => {
-    const perCapitaIncome = income / Math.max(members, 1);
-    if (perCapitaIncome < 2000) return 'Subsistence Poor';
-    if (perCapitaIncome < 3500) return 'Poor';
-    return 'Non-Poor';
-  };
-
+  // Member management
   const addHeadOfFamily = () => {
-    setHeadsOfFamily([...headsOfFamily, {
-      id: `hof-${Date.now()}`,
-      name: '',
-      age: 0,
-      gender: 'Male',
-      employmentStatus: '',
-      monthlyIncome: 0,
-      educationLevel: '',
-      occupation: '',
-    }]);
+    const newHead = createEmptyMember(true);
+    setMembers([...members, newHead]);
+    setExpandedMemberId(newHead.id);
+    setActiveMemberTab('basic');
   };
 
-  const removeHeadOfFamily = (id: string) => {
-    if (headsOfFamily.length <= 1) {
-      toast.error("At least one head of family is required");
-      return;
-    }
-    setHeadsOfFamily(headsOfFamily.filter((h: HeadOfFamily) => h.id !== id));
+  const addMember = () => {
+    // Default to first head if exists
+    const defaultHeadId = headsOfFamily.length > 0 ? headsOfFamily[0].id : undefined;
+    const newMember = createEmptyMember(false, defaultHeadId);
+    setMembers([...members, newMember]);
+    setExpandedMemberId(newMember.id);
+    setActiveMemberTab('basic');
   };
 
-  const updateHeadOfFamily = (id: string, field: keyof HeadOfFamily, value: any) => {
-    setHeadsOfFamily(headsOfFamily.map((h: HeadOfFamily) => {
-      if (h.id === id) {
-        return { ...h, [field]: value };
+  const removeMember = (id: string) => {
+    const member = members.find(m => m.id === id);
+    if (member?.relationship === 'Head') {
+      if (members.filter(m => m.relationship === 'Head').length <= 1) {
+        toast.error("At least one household head is required");
+        return;
       }
-      return h;
-    }));
+      // Check if this head has linked family members
+      const linkedMembers = members.filter(m => m.headOfFamilyId === id);
+      if (linkedMembers.length > 0) {
+        toast.error(`Cannot remove: ${linkedMembers.length} family member(s) are linked to this head`);
+        return;
+      }
+    }
+    setMembers(members.filter(m => m.id !== id));
+    if (expandedMemberId === id) {
+      setExpandedMemberId(null);
+    }
   };
 
-  // Family Members management
-  const addFamilyMember = (headOfFamilyId?: string) => {
-    const associatedHeadId = headOfFamilyId || headsOfFamily[0]?.id || '';
-    setFamilyMembers([...familyMembers, {
-      id: `fm-${Date.now()}`,
-      headOfFamilyId: associatedHeadId,
-      name: '',
-      relationship: '',
-      age: 0,
-      gender: 'Male',
-      employmentStatus: '',
-      monthlyIncome: 0,
-      educationLevel: '',
-      occupation: '',
-    }]);
-  };
-
-  const removeFamilyMember = (id: string) => {
-    setFamilyMembers(familyMembers.filter((m: FamilyMember) => m.id !== id));
-  };
-
-  const updateFamilyMember = (id: string, field: keyof FamilyMember, value: any) => {
-    setFamilyMembers(familyMembers.map((m: FamilyMember) => {
+  const updateMember = (id: string, field: keyof HouseholdMember, value: any) => {
+    setMembers(members.map(m => {
       if (m.id === id) {
-        return { ...m, [field]: value };
+        const updated = { ...m, [field]: value };
+
+        // Auto-compute age from birthDate
+        if (field === 'birthDate' && value) {
+          const birth = new Date(value);
+          const today = new Date();
+          let age = today.getFullYear() - birth.getFullYear();
+          const monthDiff = today.getMonth() - birth.getMonth();
+          if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+            age--;
+          }
+          updated.age = Math.max(0, age);
+          updated.isSeniorCitizen = age >= 60;
+        }
+
+        // Auto-compute BMI
+        if ((field === 'weight' || field === 'height') && updated.weight && updated.height) {
+          const heightM = updated.height / 100;
+          updated.bmi = Math.round((updated.weight / (heightM * heightM)) * 10) / 10;
+        }
+
+        // Auto-set OSY status
+        if (field === 'isCurrentlyAttendingSchool' || field === 'age') {
+          if (updated.age >= 15 && updated.age <= 30 && !updated.isCurrentlyAttendingSchool) {
+            updated.isOutOfSchoolYouth = true;
+          } else {
+            updated.isOutOfSchoolYouth = false;
+          }
+        }
+
+        return updated;
       }
       return m;
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (headsOfFamily.length === 0 || !headsOfFamily.some((h: HeadOfFamily) => h.name)) {
-      toast.error("Please add at least one head of family");
-      return;
+  // Navigation
+  const nextStep = () => {
+    if (validateCurrentStep()) {
+      setCurrentStep(Math.min(6, currentStep + 1) as Step);
     }
+  };
 
-    const povertyLevel = calculatePovertyLevel(totalIncome, totalMembers);
+  const prevStep = () => {
+    setCurrentStep(Math.max(1, currentStep - 1) as Step);
+  };
 
-    // Update overall risk before saving
-    const updatedDisasterRisk = {
+  // Helper to validate member's basic info and employment
+  const validateMemberBasicInfo = (member: HouseholdMember, isHead: boolean): string | null => {
+    if (!member.lastName) return `${isHead ? 'Head' : 'Member'}: Last Name is required`;
+    if (!member.firstName) return `${isHead ? 'Head' : 'Member'}: First Name is required`;
+    if (!member.birthDate && !member.age) return `${member.firstName}: Birth Date or Age is required`;
+    if (!member.gender) return `${member.firstName}: Sex is required`;
+    if (!member.civilStatus) return `${member.firstName}: Civil Status is required`;
+    if (!isHead && !member.relationship) return `${member.firstName}: Relationship is required`;
+    if (!isHead && headsOfFamily.length > 0 && !member.headOfFamilyId) {
+      return `${member.firstName}: Must be linked to a Head of Family`;
+    }
+    return null;
+  };
+
+  const validateMemberEmployment = (member: HouseholdMember): string | null => {
+    if (!member.employmentStatus) return `${member.firstName}: Employment Status is required`;
+    // If employed or self-employed, occupation is required
+    if ((member.employmentStatus === 'Employed' || member.employmentStatus === 'Self-Employed') && !member.occupation) {
+      return `${member.firstName}: Occupation is required for employed members`;
+    }
+    return null;
+  };
+
+  const validateCurrentStep = (): boolean => {
+    switch (currentStep) {
+      case 1:
+        if (!householdInfo.barangay) {
+          toast.error("Please select a barangay");
+          return false;
+        }
+        if (!householdInfo.householdNumber) {
+          toast.error("Please enter household number");
+          return false;
+        }
+        return true;
+      case 2:
+        const heads = members.filter(m => m.relationship === 'Head');
+        if (heads.length === 0) {
+          toast.error("At least one household head is required");
+          return false;
+        }
+        // Validate each head's basic info
+        for (const head of heads) {
+          const basicError = validateMemberBasicInfo(head, true);
+          if (basicError) {
+            toast.error(basicError);
+            setExpandedMemberId(head.id);
+            setActiveMemberTab('basic');
+            return false;
+          }
+          const employmentError = validateMemberEmployment(head);
+          if (employmentError) {
+            toast.error(employmentError);
+            setExpandedMemberId(head.id);
+            setActiveMemberTab('employment');
+            return false;
+          }
+        }
+        return true;
+      case 3:
+        const familyMembers = members.filter(m => m.relationship !== 'Head');
+        // Validate each family member's basic info and employment
+        for (const member of familyMembers) {
+          const basicError = validateMemberBasicInfo(member, false);
+          if (basicError) {
+            toast.error(basicError);
+            setExpandedMemberId(member.id);
+            setActiveMemberTab('basic');
+            return false;
+          }
+          const employmentError = validateMemberEmployment(member);
+          if (employmentError) {
+            toast.error(employmentError);
+            setExpandedMemberId(member.id);
+            setActiveMemberTab('employment');
+            return false;
+          }
+        }
+        return true;
+      case 4:
+        if (!economicData.housingType) {
+          toast.error("Please select housing type");
+          return false;
+        }
+        return true;
+      case 5:
+        return true;
+      default:
+        return true;
+    }
+  };
+
+  // Form submission
+  const handleSubmit = () => {
+    if (!validateCurrentStep()) return;
+
+    const updatedRisk = {
       ...disasterRisk,
       overallRisk: calculateOverallRisk(disasterRisk),
     };
 
-    // Get primary head of family (first in list)
-    const primaryHeadData = headsOfFamily[0];
+    // Map members to legacy format for backward compatibility
+    const headsOfFamily = members
+      .filter(m => m.relationship === 'Head')
+      .map(m => ({
+        id: m.id,
+        name: `${m.firstName} ${m.middleName || ''} ${m.lastName} ${m.suffix || ''}`.trim().replace(/\s+/g, ' '),
+        age: m.age,
+        gender: m.gender,
+        employmentStatus: m.employmentStatus,
+        monthlyIncome: m.monthlyIncome,
+        educationLevel: m.educationLevel,
+        occupation: m.occupation || '',
+      }));
+
+    const familyMembers = members
+      .filter(m => m.relationship !== 'Head')
+      .map(m => ({
+        id: m.id,
+        headOfFamilyId: headsOfFamily[0]?.id || '',
+        name: `${m.firstName} ${m.middleName || ''} ${m.lastName} ${m.suffix || ''}`.trim().replace(/\s+/g, ' '),
+        relationship: m.relationship,
+        age: m.age,
+        gender: m.gender,
+        employmentStatus: m.employmentStatus,
+        monthlyIncome: m.monthlyIncome,
+        educationLevel: m.educationLevel,
+        occupation: m.occupation || '',
+      }));
+
+    const disasterVulnerability = updatedRisk.overallRisk === 'Critical' || updatedRisk.overallRisk === 'Very High' || updatedRisk.overallRisk === 'High'
+      ? 'High' as const
+      : updatedRisk.overallRisk === 'Medium'
+      ? 'Medium' as const
+      : 'Low' as const;
 
     const newHousehold: Household = {
-      id: `hh-${Date.now()}`,
-      barangay: formData.barangay,
-      householdNumber: formData.householdNumber,
-      headOfFamily: primaryHead,
-      totalMembers: totalMembers,
-      monthlyIncome: totalIncome,
-      employmentStatus: primaryHeadData.employmentStatus,
-      housingType: formData.housingType,
-      accessToWater: formData.accessToWater,
-      accessToElectricity: formData.accessToElectricity,
-      accessToInternet: formData.accessToInternet,
-      healthInsurance: formData.healthInsurance,
-      educationLevel: primaryHeadData.educationLevel,
-      disasterVulnerability: formData.disasterVulnerability,
-      povertyLevel,
-      dateCollected: new Date().toISOString().split('T')[0],
+      id: `HH-${Date.now()}`,
+      barangay: householdInfo.barangay,
+      pupisSitio: householdInfo.purokSitio,
+      address: householdInfo.address,
+      householdNumber: householdInfo.householdNumber,
+      contactNumber: householdInfo.contactNumber,
       location,
-      disasterRisk: updatedDisasterRisk,
-      vulnerableMembers: vulnerableMembers.length > 0 ? vulnerableMembers : undefined,
+      headOfFamily: headName,
+      totalMembers,
+      monthlyIncome: totalIncome,
+      foodExpenditure: economicData.foodExpenditure,
+      nonFoodExpenditure: economicData.nonFoodExpenditure,
+      povertyLevel,
+      housingType: economicData.housingType,
+      waterSource: economicData.waterSource as any,
+      ...services,
+      employmentStatus: headOfFamily?.employmentStatus || '',
+      educationLevel: headOfFamily?.educationLevel || '',
+      disasterVulnerability,
+      dateCollected: new Date().toISOString(),
+      disasterRiskProfile: updatedRisk,
+      vulnerableMembers,
       evacuationReadiness,
-      headsOfFamily: headsOfFamily,
-      familyMembers: familyMembers,
+      members,
+      headsOfFamily,
+      familyMembers,
     };
 
-    if (confirm("Are you sure you want to save this household data?")) {
-      addHousehold(newHousehold);
-
-      toast.success("Household data saved successfully!", {
-        description: `${headsOfFamily.length} head(s), ${familyMembers.length} member(s) - ${totalMembers} total recorded.`
-      });
-
-      handleReset();
-    }
-  };
-
-  const handleReset = () => {
-    setFormData({
-      barangay: '',
-      householdNumber: '',
-      housingType: '',
-      accessToWater: false,
-      accessToElectricity: false,
-      accessToInternet: false,
-      healthInsurance: false,
-      disasterVulnerability: 'Low',
+    addHousehold(newHousehold);
+    toast.success("Household data collected successfully!", {
+      description: `Household ${householdInfo.householdNumber} has been saved.`
     });
-    setHeadsOfFamily([{
-      id: `hof-${Date.now()}`,
-      name: '',
-      age: 0,
-      gender: 'Male',
-      employmentStatus: '',
-      monthlyIncome: 0,
-      educationLevel: '',
-      occupation: '',
-    }]);
-    setFamilyMembers([]);
-    setLocation(undefined);
-    setDisasterRisk({
-      floodRisk: 'Low',
-      landslideRisk: 'Low',
-      earthquakeRisk: 'Low',
-      fireRisk: 'Low',
-      overallRisk: 'Low',
-    });
-    setVulnerableMembers([]);
-    setEvacuationReadiness({
-      hasEmergencyKit: false,
-      knowsEvacuationRoute: false,
-      hasEmergencyContact: false,
-      nearestEvacuationCenter: '',
-      estimatedEvacuationTime: 0,
-    });
+
+    // Reset form
     setCurrentStep(1);
+    setHouseholdInfo({ barangay: '', purokSitio: '', address: '', householdNumber: '', contactNumber: '' });
+    setLocation(undefined);
+    setMembers([createEmptyMember(true)]);
+    setEconomicData({ housingType: '', waterSource: '', foodExpenditure: 0, nonFoodExpenditure: 0 });
+    setServices({
+      accessToWater: false, accessToElectricity: false, accessToInternet: false,
+      accessToHealthFacility: false, accessToSanitaryToilet: false,
+      accessToPublicTransportation: false, accessToWasteCollection: false, healthInsurance: false,
+    });
+    setDisasterRisk({ floodRisk: 'Low', landslideRisk: 'Low', earthquakeRisk: 'Low', fireRisk: 'Low', overallRisk: 'Low' });
+    setEvacuationReadiness({
+      hasEmergencyKit: false, knowsEvacuationRoute: false, hasEvacuationPlan: false,
+      registeredWithBarangay: false, hasEmergencyContact: false, nearestEvacuationCenter: '', distanceToEvacuationCenter: undefined,
+    });
+    setExpandedMemberId(null);
   };
 
-  const nextStep = () => {
-    if (currentStep < 5) setCurrentStep((currentStep + 1) as Step);
-  };
+  // Render Step 1: Household Information
+  const renderStep1 = () => (
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <MapPin className="w-5 h-5 text-[#0a1c33]" />
+          Household Location
+        </h3>
 
-  const prevStep = () => {
-    if (currentStep > 1) setCurrentStep((currentStep - 1) as Step);
-  };
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Barangay <span className="text-red-500">*</span>
+            </label>
+            <select
+              value={householdInfo.barangay}
+              onChange={(e) => setHouseholdInfo({ ...householdInfo, barangay: e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#143a63] focus:border-transparent"
+            >
+              <option value="">Select barangay</option>
+              {barangays.map(b => (
+                <option key={b} value={b}>{b}</option>
+              ))}
+            </select>
+          </div>
 
-  const inputClass = "w-full px-4 py-3 bg-white border border-[#e6e9ee] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#c8a24b] focus:border-transparent text-[#0a1c33] placeholder:text-[#143a63]/40 text-sm";
-  const inputSmClass = "w-full px-3 py-2 bg-white border border-[#e6e9ee] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#c8a24b] focus:border-transparent text-[#0a1c33] placeholder:text-[#143a63]/40 text-sm";
-  const labelClass = "block text-xs font-medium text-[#143a63]/60 uppercase tracking-wide mb-2";
-  const labelSmClass = "block text-[10px] font-medium text-[#143a63]/60 uppercase tracking-wide mb-1";
-  const checkboxClass = "flex items-center gap-3 p-4 border border-[#e6e9ee] rounded-lg cursor-pointer hover:bg-[#f7f7f3] transition-colors";
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Household Number <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              value={householdInfo.householdNumber}
+              onChange={(e) => setHouseholdInfo({ ...householdInfo, householdNumber: e.target.value })}
+              placeholder="e.g., HH-2024-001"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#143a63] focus:border-transparent"
+            />
+          </div>
 
-  return (
-    <div className="w-full max-w-full overflow-x-hidden">
-      <div className="mb-4 md:mb-6">
-        <p className="eyebrow mb-1 md:mb-2">Data Collection · RA 11315</p>
-        <h2 className="text-lg md:text-2xl font-semibold text-[#0a1c33]" style={{ fontFamily: 'Source Serif 4' }}>
-          Household Data Collection
-        </h2>
-        <p className="text-xs md:text-sm text-[#143a63]/60 mt-1">Enter household information per CBMS requirements</p>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Purok/Sitio
+            </label>
+            <input
+              type="text"
+              value={householdInfo.purokSitio}
+              onChange={(e) => setHouseholdInfo({ ...householdInfo, purokSitio: e.target.value })}
+              placeholder="Enter purok or sitio"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#143a63] focus:border-transparent"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Contact Number
+            </label>
+            <input
+              type="tel"
+              value={householdInfo.contactNumber}
+              onChange={(e) => setHouseholdInfo({ ...householdInfo, contactNumber: e.target.value })}
+              placeholder="e.g., 09171234567"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#143a63] focus:border-transparent"
+            />
+          </div>
+
+          <div className="md:col-span-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Complete Address
+            </label>
+            <input
+              type="text"
+              value={householdInfo.address}
+              onChange={(e) => setHouseholdInfo({ ...householdInfo, address: e.target.value })}
+              placeholder="House/Lot No., Street, Zone"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#143a63] focus:border-transparent"
+            />
+          </div>
+        </div>
       </div>
 
-      {/* Step Progress */}
-      <div className="bg-white rounded-lg border border-[#e6e9ee] p-3 md:p-4 mb-4 md:mb-6">
-        <div className="flex justify-between items-center">
-          {steps.map((step, index) => (
-            <div key={step.id} className="flex items-center flex-1">
-              <div className="flex flex-col items-center flex-1">
-                <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center transition-all ${
-                  currentStep >= step.id
-                    ? 'bg-[#143a63] text-white'
-                    : 'bg-[#e6e9ee] text-[#143a63]/40'
-                }`}>
-                  {currentStep > step.id ? (
-                    <Check className="w-4 h-4 md:w-5 md:h-5" />
-                  ) : (
-                    <step.icon className="w-4 h-4 md:w-5 md:h-5" />
+      <div>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <MapPin className="w-5 h-5 text-green-600" />
+          GPS Location
+        </h3>
+        <GPSCapture
+          value={location}
+          onChange={setLocation}
+        />
+      </div>
+    </div>
+  );
+
+  // Render Member Card with Tabs
+  const renderMemberCard = (member: HouseholdMember, index: number) => {
+    const isExpanded = expandedMemberId === member.id;
+    const memberName = `${member.firstName || 'New'} ${member.lastName || 'Member'}`.trim();
+    const isHead = member.relationship === 'Head';
+    const linkedHead = !isHead && member.headOfFamilyId
+      ? headsOfFamily.find(h => h.id === member.headOfFamilyId)
+      : null;
+    const linkedHeadName = linkedHead
+      ? `${linkedHead.firstName || ''} ${linkedHead.lastName || ''}`.trim() || 'Unnamed Head'
+      : null;
+
+    return (
+      <div key={member.id} className="border border-gray-200 rounded-lg overflow-hidden bg-white">
+        {/* Header */}
+        <div
+          className={`flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 ${isExpanded ? 'bg-[#0a1c33]/5 border-b border-gray-200' : ''}`}
+          onClick={() => setExpandedMemberId(isExpanded ? null : member.id)}
+        >
+          <div className="flex items-center gap-3">
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isHead ? 'bg-[#0a1c33]/10 text-[#0a1c33]' : 'bg-gray-100 text-gray-600'}`}>
+              <User className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="font-medium text-gray-900">
+                {memberName}
+                {isHead && <span className="ml-2 text-xs bg-[#0a1c33]/10 text-[#0a1c33] px-2 py-0.5 rounded-full">Head</span>}
+              </p>
+              <p className="text-sm text-gray-500">
+                {member.relationship || 'Not specified'} · {member.age || '?'} yrs · {member.gender}
+                {linkedHeadName && <span className="ml-1 text-[#143a63]">· under {linkedHeadName}</span>}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={(e) => { e.stopPropagation(); removeMember(member.id); }}
+              className="p-2 text-red-500 hover:bg-red-50 rounded-lg"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+            {isExpanded ? <ChevronUp className="w-5 h-5 text-gray-400" /> : <ChevronDown className="w-5 h-5 text-gray-400" />}
+          </div>
+        </div>
+
+        {/* Expanded Content with Tabs */}
+        {isExpanded && (
+          <div className="p-4">
+            {/* Tabs - Navy Blue Style */}
+            <div className="flex bg-[#143a63] rounded-lg p-1 mb-4">
+              {[
+                { id: 'basic', label: 'Basic Info', icon: User },
+                { id: 'employment', label: 'Employment', icon: Briefcase },
+                { id: 'health', label: 'Health', icon: Heart },
+                { id: 'education', label: 'Education', icon: GraduationCap },
+              ].map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveMemberTab(tab.id as MemberTab)}
+                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium rounded-md transition-all ${
+                    activeMemberTab === tab.id
+                      ? 'bg-white text-[#0a1c33] shadow-sm'
+                      : 'text-white/70 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  <tab.icon className="w-4 h-4" />
+                  <span className="hidden sm:inline">{tab.label}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* Tab Content */}
+            <div className="space-y-4">
+              {activeMemberTab === 'basic' && (
+                <>
+                  {/* Head of Family Selection for non-heads */}
+                  {!isHead && headsOfFamily.length > 0 && (
+                    <div className="p-3 bg-[#143a63]/5 border border-[#143a63]/20 rounded-lg">
+                      <label className="block text-xs font-medium text-[#143a63] mb-1">Linked to Head of Family *</label>
+                      <select
+                        value={member.headOfFamilyId || ''}
+                        onChange={(e) => updateMember(member.id, 'headOfFamilyId', e.target.value)}
+                        className="w-full px-3 py-2 text-sm border border-[#143a63]/30 rounded-lg focus:ring-2 focus:ring-[#143a63] bg-white"
+                      >
+                        <option value="">Select head of family</option>
+                        {headsOfFamily.map(head => (
+                          <option key={head.id} value={head.id}>
+                            {`${head.firstName || ''} ${head.lastName || ''}`.trim() || 'Unnamed Head'}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Last Name *</label>
+                      <input
+                        type="text"
+                        value={member.lastName}
+                        onChange={(e) => updateMember(member.id, 'lastName', e.target.value)}
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#143a63]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">First Name *</label>
+                      <input
+                        type="text"
+                        value={member.firstName}
+                        onChange={(e) => updateMember(member.id, 'firstName', e.target.value)}
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#143a63]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Middle Name</label>
+                      <input
+                        type="text"
+                        value={member.middleName || ''}
+                        onChange={(e) => updateMember(member.id, 'middleName', e.target.value)}
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#143a63]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Suffix</label>
+                      <select
+                        value={member.suffix || ''}
+                        onChange={(e) => updateMember(member.id, 'suffix', e.target.value)}
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#143a63]"
+                      >
+                        {SUFFIX_OPTIONS.map(s => <option key={s} value={s}>{s || 'None'}</option>)}
+                      </select>
+                    </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Birth Date <span className="text-red-500">*</span></label>
+                    <input
+                      type="date"
+                      value={member.birthDate || ''}
+                      onChange={(e) => updateMember(member.id, 'birthDate', e.target.value)}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#143a63]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Age</label>
+                    <input
+                      type="number"
+                      value={member.age || ''}
+                      onChange={(e) => updateMember(member.id, 'age', parseInt(e.target.value) || 0)}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#143a63]"
+                      placeholder="Auto from DOB"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Sex <span className="text-red-500">*</span></label>
+                    <select
+                      value={member.gender}
+                      onChange={(e) => updateMember(member.id, 'gender', e.target.value)}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#143a63]"
+                    >
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Civil Status <span className="text-red-500">*</span></label>
+                    <select
+                      value={member.civilStatus || ''}
+                      onChange={(e) => updateMember(member.id, 'civilStatus', e.target.value)}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#143a63]"
+                    >
+                      <option value="">Select</option>
+                      {CIVIL_STATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Relationship {!isHead && <span className="text-red-500">*</span>}</label>
+                    <select
+                      value={member.relationship}
+                      onChange={(e) => updateMember(member.id, 'relationship', e.target.value)}
+                      disabled={isHead}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#143a63] disabled:bg-gray-100"
+                    >
+                      <option value="">Select</option>
+                      {RELATIONSHIP_OPTIONS.map(r => <option key={r} value={r}>{r}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">PhilSys Number</label>
+                    <input
+                      type="text"
+                      value={member.philsysNumber || ''}
+                      onChange={(e) => updateMember(member.id, 'philsysNumber', e.target.value)}
+                      placeholder="National ID"
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#143a63]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Contact Number</label>
+                    <input
+                      type="tel"
+                      value={member.contactNumber || ''}
+                      onChange={(e) => updateMember(member.id, 'contactNumber', e.target.value)}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#143a63]"
+                    />
+                  </div>
+                  </div>
+                </>
+              )}
+
+              {activeMemberTab === 'employment' && (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Employment Status <span className="text-red-500">*</span></label>
+                    <select
+                      value={member.employmentStatus}
+                      onChange={(e) => updateMember(member.id, 'employmentStatus', e.target.value)}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#143a63]"
+                    >
+                      <option value="">Select</option>
+                      {EMPLOYMENT_STATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                      Occupation {(member.employmentStatus === 'Employed' || member.employmentStatus === 'Self-Employed') && <span className="text-red-500">*</span>}
+                    </label>
+                    <input
+                      type="text"
+                      value={member.occupation || ''}
+                      onChange={(e) => updateMember(member.id, 'occupation', e.target.value)}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#143a63]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Monthly Income (₱)</label>
+                    <input
+                      type="number"
+                      value={member.monthlyIncome || ''}
+                      onChange={(e) => updateMember(member.id, 'monthlyIncome', parseFloat(e.target.value) || 0)}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#143a63]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Income Source</label>
+                    <select
+                      value={member.incomeSource || ''}
+                      onChange={(e) => updateMember(member.id, 'incomeSource', e.target.value)}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#143a63]"
+                    >
+                      <option value="">Select</option>
+                      {INCOME_SOURCE_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </div>
+                </div>
+              )}
+
+              {activeMemberTab === 'health' && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">PhilHealth Status</label>
+                      <select
+                        value={member.philHealthStatus || ''}
+                        onChange={(e) => updateMember(member.id, 'philHealthStatus', e.target.value)}
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#143a63]"
+                      >
+                        {PHILHEALTH_STATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Disability Type</label>
+                      <select
+                        value={member.disabilityType || 'None'}
+                        onChange={(e) => {
+                          updateMember(member.id, 'disabilityType', e.target.value);
+                          updateMember(member.id, 'hasDisability', e.target.value !== 'None');
+                        }}
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#143a63]"
+                      >
+                        {DISABILITY_TYPE_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-4">
+                    {[
+                      { field: 'isSoloParent', label: 'Solo Parent' },
+                      { field: 'hasChronicIllness', label: 'Chronic Illness' },
+                      ...(member.gender === 'Female' && member.age >= 15 && member.age <= 49 ? [
+                        { field: 'isPregnant', label: 'Pregnant' },
+                        { field: 'isLactating', label: 'Lactating' },
+                      ] : []),
+                    ].map(({ field, label }) => (
+                      <label key={field} className="flex items-center gap-2 text-sm">
+                        <input
+                          type="checkbox"
+                          checked={member[field as keyof HouseholdMember] as boolean || false}
+                          onChange={(e) => updateMember(member.id, field as keyof HouseholdMember, e.target.checked)}
+                          className="w-4 h-4 rounded border-gray-300 text-[#0a1c33] focus:ring-[#143a63]"
+                        />
+                        {label}
+                      </label>
+                    ))}
+                  </div>
+
+                  {/* Nutrition for children 0-5 or pregnant */}
+                  {(member.age <= 5 || member.isPregnant) && (
+                    <div className="mt-4 p-4 bg-yellow-50 rounded-lg">
+                      <p className="text-sm font-medium text-yellow-800 mb-3">Nutrition Assessment</p>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 mb-1">Weight (kg)</label>
+                          <input
+                            type="number"
+                            step="0.1"
+                            value={member.weight || ''}
+                            onChange={(e) => updateMember(member.id, 'weight', parseFloat(e.target.value) || undefined)}
+                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#143a63]"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 mb-1">Height (cm)</label>
+                          <input
+                            type="number"
+                            step="0.1"
+                            value={member.height || ''}
+                            onChange={(e) => updateMember(member.id, 'height', parseFloat(e.target.value) || undefined)}
+                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#143a63]"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 mb-1">BMI</label>
+                          <input
+                            type="text"
+                            value={member.bmi || '-'}
+                            disabled
+                            className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 mb-1">Nutritional Status</label>
+                          <select
+                            value={member.nutritionalStatus || ''}
+                            onChange={(e) => updateMember(member.id, 'nutritionalStatus', e.target.value)}
+                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#143a63]"
+                          >
+                            <option value="">Select</option>
+                            {NUTRITIONAL_STATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+                          </select>
+                        </div>
+                      </div>
+                    </div>
                   )}
                 </div>
-                <span className={`text-[10px] md:text-xs mt-1 md:mt-2 font-medium text-center ${
-                  currentStep >= step.id ? 'text-[#143a63]' : 'text-[#143a63]/40'
-                }`}>
-                  {step.label}
-                </span>
-              </div>
-              {index < steps.length - 1 && (
-                <div className={`w-4 sm:w-8 md:w-16 lg:w-24 h-0.5 md:h-1 mx-1 md:mx-2 rounded flex-shrink-0 ${
-                  currentStep > step.id ? 'bg-[#143a63]' : 'bg-[#e6e9ee]'
-                }`} />
               )}
+
+              {activeMemberTab === 'education' && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Educational Attainment</label>
+                      <select
+                        value={member.educationLevel}
+                        onChange={(e) => updateMember(member.id, 'educationLevel', e.target.value)}
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#143a63]"
+                      >
+                        <option value="">Select</option>
+                        {EDUCATION_LEVEL_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Literacy Status</label>
+                      <select
+                        value={member.literacyStatus || ''}
+                        onChange={(e) => updateMember(member.id, 'literacyStatus', e.target.value)}
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#143a63]"
+                      >
+                        {LITERACY_STATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+                      </select>
+                    </div>
+                  </div>
+
+                  <label className="flex items-center gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={member.isCurrentlyAttendingSchool || false}
+                      onChange={(e) => updateMember(member.id, 'isCurrentlyAttendingSchool', e.target.checked)}
+                      className="w-4 h-4 rounded border-gray-300 text-[#0a1c33] focus:ring-[#143a63]"
+                    />
+                    Currently Attending School
+                  </label>
+
+                  {member.isCurrentlyAttendingSchool && (
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-[#0a1c33]/5 rounded-lg">
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">Grade Level</label>
+                        <select
+                          value={member.currentGradeLevel || ''}
+                          onChange={(e) => updateMember(member.id, 'currentGradeLevel', e.target.value)}
+                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#143a63]"
+                        >
+                          <option value="">Select</option>
+                          {GRADE_LEVEL_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">School Name</label>
+                        <input
+                          type="text"
+                          value={member.schoolName || ''}
+                          onChange={(e) => updateMember(member.id, 'schoolName', e.target.value)}
+                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#143a63]"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">School Type</label>
+                        <select
+                          value={member.schoolType || ''}
+                          onChange={(e) => updateMember(member.id, 'schoolType', e.target.value)}
+                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#143a63]"
+                        >
+                          <option value="">Select</option>
+                          {SCHOOL_TYPE_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+                        </select>
+                      </div>
+                      <div className="flex items-end">
+                        <label className="flex items-center gap-2 text-sm">
+                          <input
+                            type="checkbox"
+                            checked={member.isScholarshipRecipient || false}
+                            onChange={(e) => updateMember(member.id, 'isScholarshipRecipient', e.target.checked)}
+                            className="w-4 h-4 rounded border-gray-300 text-[#0a1c33] focus:ring-[#143a63]"
+                          />
+                          Scholarship Recipient
+                        </label>
+                      </div>
+                    </div>
+                  )}
+
+                  {member.age >= 15 && member.age <= 30 && !member.isCurrentlyAttendingSchool && (
+                    <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                      <label className="flex items-center gap-2 text-sm text-amber-800">
+                        <input
+                          type="checkbox"
+                          checked={member.isOutOfSchoolYouth || false}
+                          onChange={(e) => updateMember(member.id, 'isOutOfSchoolYouth', e.target.checked)}
+                          className="w-4 h-4 rounded border-amber-300 text-amber-600 focus:ring-amber-500"
+                        />
+                        Out-of-School Youth (OSY)
+                      </label>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // Render Step 2: Head of Family
+  const renderStep2 = () => {
+    const heads = members.filter(m => m.relationship === 'Head');
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+            <User className="w-5 h-5 text-[#0a1c33]" />
+            Head of Family ({heads.length})
+          </h3>
+          <button
+            onClick={addHeadOfFamily}
+            className="flex items-center gap-2 px-4 py-2 bg-[#143a63] text-white rounded-lg hover:bg-[#0e2a4a] transition-colors text-sm"
+          >
+            <Plus className="w-4 h-4" />
+            Add Head of Family
+          </button>
+        </div>
+
+        <p className="text-sm text-gray-500">
+          Enter the information for each head of family. A household can have multiple heads (e.g., extended families). Family members will be linked to their respective head.
+        </p>
+
+        <div className="space-y-3">
+          {heads.map((member, index) => renderMemberCard(member, index))}
+        </div>
+      </div>
+    );
+  };
+
+  // Render Step 3: Family Members
+  const renderStep3 = () => {
+    const familyMembers = members.filter(m => m.relationship !== 'Head');
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+            <Users className="w-5 h-5 text-[#0a1c33]" />
+            Family Members ({familyMembers.length})
+          </h3>
+          <button
+            onClick={addMember}
+            className="flex items-center gap-2 px-4 py-2 bg-[#143a63] text-white rounded-lg hover:bg-[#0e2a4a] transition-colors text-sm"
+          >
+            <Plus className="w-4 h-4" />
+            Add Member
+          </button>
+        </div>
+
+        <p className="text-sm text-gray-500">
+          Add and manage family members. Click on a member to expand and use the tabs to fill in their details.
+        </p>
+
+        {familyMembers.length === 0 ? (
+          <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
+            <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+            <p className="text-gray-500 mb-4">No family members added yet</p>
+            <button
+              onClick={addMember}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-[#143a63] text-white rounded-lg hover:bg-[#0e2a4a] transition-colors text-sm"
+            >
+              <Plus className="w-4 h-4" />
+              Add First Member
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {familyMembers.map((member, index) => renderMemberCard(member, index))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // Render Step 4: Economic & Services
+  const renderStep4 = () => (
+    <div className="space-y-6">
+      {/* Housing */}
+      <div>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <Home className="w-5 h-5 text-[#0a1c33]" />
+          Housing Information
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Housing Type <span className="text-red-500">*</span>
+            </label>
+            <select
+              value={economicData.housingType}
+              onChange={(e) => setEconomicData({ ...economicData, housingType: e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#143a63]"
+            >
+              <option value="">Select housing type</option>
+              {HOUSING_TYPE_OPTIONS.map(h => <option key={h} value={h}>{h}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Water Source</label>
+            <select
+              value={economicData.waterSource}
+              onChange={(e) => setEconomicData({ ...economicData, waterSource: e.target.value as WaterSource })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#143a63]"
+            >
+              <option value="">Select water source</option>
+              {WATER_SOURCE_OPTIONS.map(w => <option key={w} value={w}>{w}</option>)}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* Income Summary */}
+      <div>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <Briefcase className="w-5 h-5 text-green-600" />
+          Income Summary
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="p-4 bg-[#0a1c33]/5 rounded-lg">
+            <p className="text-sm text-[#0a1c33] font-medium">Total Monthly Income</p>
+            <p className="text-2xl font-bold text-[#0a1c33]">₱{totalIncome.toLocaleString()}</p>
+            <p className="text-xs text-[#143a63] mt-1">From {totalMembers} members</p>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Food Expenditure (₱/month)</label>
+            <input
+              type="number"
+              value={economicData.foodExpenditure || ''}
+              onChange={(e) => setEconomicData({ ...economicData, foodExpenditure: parseFloat(e.target.value) || 0 })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#143a63]"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Non-Food Expenditure (₱/month)</label>
+            <input
+              type="number"
+              value={economicData.nonFoodExpenditure || ''}
+              onChange={(e) => setEconomicData({ ...economicData, nonFoodExpenditure: parseFloat(e.target.value) || 0 })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#143a63]"
+            />
+          </div>
+          <div className={`p-4 rounded-lg ${
+            povertyLevel === 'Subsistence Poor' ? 'bg-red-50' :
+            povertyLevel === 'Poor' ? 'bg-amber-50' : 'bg-green-50'
+          }`}>
+            <p className="text-sm font-medium text-gray-600">Poverty Level</p>
+            <p className={`text-xl font-bold ${
+              povertyLevel === 'Subsistence Poor' ? 'text-red-700' :
+              povertyLevel === 'Poor' ? 'text-amber-700' : 'text-green-700'
+            }`}>{povertyLevel}</p>
+            <p className="text-xs text-gray-500 mt-1">
+              ₱{Math.round(totalIncome / Math.max(totalMembers, 1)).toLocaleString()}/capita
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Basic Services */}
+      <div>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <Zap className="w-5 h-5 text-amber-600" />
+          Access to Basic Services
+        </h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[
+            { key: 'accessToWater', label: 'Potable Water', icon: Droplets, color: 'blue' },
+            { key: 'accessToElectricity', label: 'Electricity', icon: Zap, color: 'amber' },
+            { key: 'accessToInternet', label: 'Internet', icon: Wifi, color: 'purple' },
+            { key: 'accessToHealthFacility', label: 'Health Facility', icon: Stethoscope, color: 'red' },
+            { key: 'accessToSanitaryToilet', label: 'Sanitary Toilet', icon: Home, color: 'teal' },
+            { key: 'accessToPublicTransportation', label: 'Public Transport', icon: Truck, color: 'gray' },
+            { key: 'accessToWasteCollection', label: 'Waste Collection', icon: Trash2, color: 'green' },
+            { key: 'healthInsurance', label: 'Health Insurance', icon: Heart, color: 'pink' },
+          ].map(({ key, label, icon: Icon, color }) => (
+            <label
+              key={key}
+              className={`flex items-center gap-3 p-4 border rounded-lg cursor-pointer transition-all ${
+                services[key as keyof typeof services]
+                  ? `bg-${color}-50 border-${color}-300`
+                  : 'bg-white border-gray-200 hover:border-gray-300'
+              }`}
+            >
+              <input
+                type="checkbox"
+                checked={services[key as keyof typeof services]}
+                onChange={(e) => setServices({ ...services, [key]: e.target.checked })}
+                className="sr-only"
+              />
+              <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                services[key as keyof typeof services] ? `bg-${color}-100` : 'bg-gray-100'
+              }`}>
+                <Icon className={`w-5 h-5 ${services[key as keyof typeof services] ? `text-${color}-600` : 'text-gray-400'}`} />
+              </div>
+              <div>
+                <p className={`text-sm font-medium ${services[key as keyof typeof services] ? 'text-gray-900' : 'text-gray-600'}`}>
+                  {label}
+                </p>
+                <p className={`text-xs ${services[key as keyof typeof services] ? 'text-green-600' : 'text-gray-400'}`}>
+                  {services[key as keyof typeof services] ? 'Yes' : 'No'}
+                </p>
+              </div>
+            </label>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  // Render Step 5: Disaster Risk
+  const renderStep5 = () => (
+    <div className="space-y-6">
+      {/* Risk Levels */}
+      <div>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <AlertTriangle className="w-5 h-5 text-amber-600" />
+          Disaster Risk Assessment
+        </h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[
+            { key: 'floodRisk', label: 'Flood Risk', icon: Droplets, color: 'blue' },
+            { key: 'landslideRisk', label: 'Landslide Risk', icon: AlertTriangle, color: 'orange' },
+            { key: 'earthquakeRisk', label: 'Earthquake Risk', icon: AlertTriangle, color: 'red' },
+            { key: 'fireRisk', label: 'Fire Risk', icon: AlertTriangle, color: 'rose' },
+          ].map(({ key, label, icon: Icon }) => (
+            <div key={key}>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+              <select
+                value={disasterRisk[key as keyof DisasterRiskProfile]}
+                onChange={(e) => setDisasterRisk({ ...disasterRisk, [key]: e.target.value as RiskLevel })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#143a63]"
+              >
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+                <option value="Critical">Critical</option>
+              </select>
             </div>
           ))}
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-white rounded-lg border border-[#e6e9ee] p-4 md:p-6">
-        {/* Step 1: Basic Information */}
-        {currentStep === 1 && (
-          <div className="space-y-6">
-            <h3 className="text-base font-semibold text-[#0a1c33] pb-3 border-b border-[#e6e9ee]" style={{ fontFamily: 'Source Serif 4' }}>
-              Basic Information
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <div>
-                <label className={labelClass}>
-                  Barangay <span className="text-red-500">*</span>
-                </label>
-                <select
-                  required
-                  value={formData.barangay}
-                  onChange={(e) => setFormData({ ...formData, barangay: e.target.value })}
-                  className={inputClass}
-                >
-                  <option value="">Select Barangay</option>
-                  {barangays.map((b) => (
-                    <option key={b} value={b}>{b}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className={labelClass}>
-                  Household Number <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.householdNumber}
-                  onChange={(e) => setFormData({ ...formData, householdNumber: e.target.value })}
-                  className={inputClass}
-                  placeholder="e.g., HH-2024-001"
-                />
-              </div>
-            </div>
-
-            {/* GPS Location Capture */}
-            <div className="mt-6 pt-6 border-t border-[#e6e9ee]">
-              <label className={labelClass}>GPS Location (Optional)</label>
-              <p className="text-xs text-[#143a63]/60 mb-3">
-                Capture the household's GPS coordinates for mapping and disaster risk assessment
-              </p>
-              <GPSCapture
-                onLocationCapture={setLocation}
-                currentLocation={location}
-              />
-            </div>
+      {/* Evacuation Readiness */}
+      <div>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <Building2 className="w-5 h-5 text-green-600" />
+          Evacuation Readiness
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Nearest Evacuation Center</label>
+            <select
+              value={evacuationReadiness.nearestEvacuationCenter || ''}
+              onChange={(e) => setEvacuationReadiness({ ...evacuationReadiness, nearestEvacuationCenter: e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#143a63]"
+            >
+              <option value="">Select evacuation center</option>
+              {evacuationCenters.filter(c => c.isActive).map(c => (
+                <option key={c.id} value={c.id}>{c.name} ({c.barangay})</option>
+              ))}
+            </select>
           </div>
-        )}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Distance (km)</label>
+            <input
+              type="number"
+              step="0.1"
+              value={evacuationReadiness.distanceToEvacuationCenter || ''}
+              onChange={(e) => setEvacuationReadiness({ ...evacuationReadiness, distanceToEvacuationCenter: parseFloat(e.target.value) || undefined })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#143a63]"
+            />
+          </div>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          {[
+            { key: 'hasEmergencyKit', label: 'Has Emergency Kit (Go-Bag)' },
+            { key: 'knowsEvacuationRoute', label: 'Knows Evacuation Route' },
+            { key: 'hasEmergencyContact', label: 'Has Emergency Contact' },
+            { key: 'hasEvacuationPlan', label: 'Has Evacuation Plan' },
+            { key: 'registeredWithBarangay', label: 'Registered with Barangay DRRM' },
+          ].map(({ key, label }) => (
+            <label key={key} className="flex items-center gap-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={evacuationReadiness[key as keyof EvacuationReadiness] as boolean}
+                onChange={(e) => setEvacuationReadiness({ ...evacuationReadiness, [key]: e.target.checked })}
+                className="w-4 h-4 rounded border-gray-300 text-green-600 focus:ring-green-500"
+              />
+              <span className="text-sm text-gray-700">{label}</span>
+            </label>
+          ))}
+        </div>
+      </div>
 
-        {/* Step 2: Heads of Family */}
-        {currentStep === 2 && (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between pb-3 border-b border-[#e6e9ee]">
-              <h3 className="text-base font-semibold text-[#0a1c33]" style={{ fontFamily: 'Source Serif 4' }}>
-                Heads of Family
-              </h3>
-              <button
-                type="button"
-                onClick={addHeadOfFamily}
-                className="flex items-center gap-2 px-3 py-1.5 bg-[#143a63] text-white rounded-lg hover:bg-[#0a1c33] transition-colors text-sm"
-              >
-                <Plus className="w-4 h-4" />
-                Add Head of Family
-              </button>
-            </div>
-
-            <p className="text-xs text-[#143a63]/60">
-              Add all heads of family (extended families may have multiple). Each head has their own economic information.
-            </p>
-
-            {/* Total Household Members */}
-            <div className="p-4 bg-[#f0f4f8] border border-[#e6e9ee] rounded-lg">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-                <div>
-                  <label className={labelClass}>
-                    Total Household Members
-                  </label>
-                  <input
-                    type="number"
-                    readOnly
-                    value={totalMembers}
-                    className="w-full px-4 py-3 bg-gray-100 border border-[#e6e9ee] rounded-lg text-[#0a1c33] font-semibold text-sm cursor-not-allowed"
-                    placeholder="Total members"
-                  />
-                  <p className="text-[10px] text-[#143a63]/50 mt-1">Autocalculated list total (Heads + Family Members)</p>
-                </div>
-                <div className="text-sm">
-                  <span className="text-[#143a63]/60">Heads of Family:</span>
-                  <span className="ml-2 font-semibold text-[#0a1c33]">{headsOfFamily.length}</span>
-                </div>
-                <div className="text-sm">
-                  <span className="text-[#143a63]/60">Combined Income:</span>
-                  <span className="ml-2 font-semibold text-[#0a1c33]">₱{totalIncome.toLocaleString()}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Heads of Family List */}
-            <div className="space-y-4">
-              {headsOfFamily.map((head, index) => (
-                <div key={head.id} className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-2">
-                      <span className="w-6 h-6 rounded-full bg-[#143a63] text-white flex items-center justify-center text-xs font-bold">
-                        {index + 1}
-                      </span>
-                      <span className="text-sm font-semibold text-[#0a1c33]">
-                        {head.name || 'New Head of Family'}
-                        {index === 0 && (
-                          <span className="ml-2 px-2 py-0.5 bg-[#c8a24b] text-white text-[10px] rounded">PRIMARY</span>
-                        )}
-                      </span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => removeHeadOfFamily(head.id)}
-                      className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                      title="Remove head of family"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-
-                  {/* Personal Info Row */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
-                    <div className="col-span-2">
-                      <label className={labelSmClass}>Full Name <span className="text-red-500">*</span></label>
-                      <input
-                        type="text"
-                        required
-                        value={head.name}
-                        onChange={(e) => updateHeadOfFamily(head.id, 'name', e.target.value)}
-                        className={inputSmClass}
-                        placeholder="Full Name"
-                      />
-                    </div>
-                    <div>
-                      <label className={labelSmClass}>Age <span className="text-red-500">*</span></label>
-                      <input
-                        type="number"
-                        required
-                        min="0"
-                        max="150"
-                        value={head.age || ''}
-                        onChange={(e) => updateHeadOfFamily(head.id, 'age', parseInt(e.target.value) || 0)}
-                        className={inputSmClass}
-                        placeholder="Age"
-                      />
-                    </div>
-                    <div>
-                      <label className={labelSmClass}>Gender</label>
-                      <select
-                        value={head.gender}
-                        onChange={(e) => updateHeadOfFamily(head.id, 'gender', e.target.value)}
-                        className={inputSmClass}
-                      >
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  {/* Occupation Row */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
-                    <div>
-                      <label className={labelSmClass}>Occupation</label>
-                      <input
-                        type="text"
-                        value={head.occupation}
-                        onChange={(e) => updateHeadOfFamily(head.id, 'occupation', e.target.value)}
-                        className={inputSmClass}
-                        placeholder="e.g., Farmer, Teacher, etc."
-                      />
-                    </div>
-                    <div>
-                      <label className={labelSmClass}>Employment Status</label>
-                      <select
-                        value={head.employmentStatus}
-                        onChange={(e) => updateHeadOfFamily(head.id, 'employmentStatus', e.target.value)}
-                        className={inputSmClass}
-                      >
-                        <option value="">Select Status</option>
-                        <option value="Employed">Employed</option>
-                        <option value="Self-Employed">Self-Employed</option>
-                        <option value="Unemployed">Unemployed</option>
-                        <option value="Retired">Retired</option>
-                        <option value="OFW">OFW</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  {/* Economic Info Row */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-3 border-t border-gray-200">
-                    <div>
-                      <label className={labelSmClass}>Monthly Income (₱)</label>
-                      <input
-                        type="number"
-                        min="0"
-                        value={head.monthlyIncome || ''}
-                        onChange={(e) => updateHeadOfFamily(head.id, 'monthlyIncome', parseFloat(e.target.value) || 0)}
-                        className={inputSmClass}
-                        placeholder="0"
-                      />
-                    </div>
-                    <div>
-                      <label className={labelSmClass}>Education Level</label>
-                      <select
-                        value={head.educationLevel}
-                        onChange={(e) => updateHeadOfFamily(head.id, 'educationLevel', e.target.value)}
-                        className={inputSmClass}
-                      >
-                        <option value="">Select Level</option>
-                        <option value="No Formal Education">No Formal Education</option>
-                        <option value="Elementary">Elementary</option>
-                        <option value="High School">High School</option>
-                        <option value="Vocational">Vocational</option>
-                        <option value="College">College</option>
-                        <option value="Post-Graduate">Post-Graduate</option>
-                      </select>
-                    </div>
-                  </div>
+      {/* Vulnerable Members Summary */}
+      {vulnerableMembers.length > 0 && (
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <Heart className="w-5 h-5 text-red-600" />
+            Vulnerable Members ({vulnerableMembers.length})
+          </h3>
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              {vulnerableMembers.map(v => (
+                <div key={v.id} className="flex items-center gap-2 text-sm">
+                  <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+                    v.type === 'Elderly' ? 'bg-purple-100 text-purple-700' :
+                    v.type === 'PWD' ? 'bg-[#0a1c33]/10 text-[#0a1c33]' :
+                    v.type === 'Pregnant' ? 'bg-pink-100 text-pink-700' :
+                    v.type === 'Infant' ? 'bg-yellow-100 text-yellow-700' :
+                    v.type === 'OSY' ? 'bg-orange-100 text-orange-700' :
+                    'bg-gray-100 text-gray-700'
+                  }`}>
+                    {v.type}
+                  </span>
+                  <span className="text-gray-700">{v.name}</span>
+                  <span className="text-gray-400">({v.relationship}, {v.age} yrs)</span>
                 </div>
               ))}
             </div>
-
-            {/* Poverty Level Preview */}
-            {totalIncome > 0 && totalMembers > 0 && (
-              <div className="p-4 bg-[#f7f7f3] rounded-lg border border-[#e6e9ee]">
-                <p className="text-xs text-[#143a63]/60 uppercase tracking-wide mb-1">Calculated Poverty Level</p>
-                <p className={`font-semibold ${
-                  calculatePovertyLevel(totalIncome, totalMembers) === 'Non-Poor'
-                    ? 'text-[#4a7c59]'
-                    : calculatePovertyLevel(totalIncome, totalMembers) === 'Poor'
-                    ? 'text-[#c8a24b]'
-                    : 'text-red-600'
-                }`}>
-                  {calculatePovertyLevel(totalIncome, totalMembers)}
-                </p>
-                <p className="text-xs text-[#143a63]/60 mt-1">
-                  Per capita income: ₱{(totalIncome / totalMembers).toLocaleString(undefined, { maximumFractionDigits: 2 })}
-                </p>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Step 3: Family Members */}
-        {currentStep === 3 && (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between pb-3 border-b border-[#e6e9ee]">
-              <h3 className="text-base font-semibold text-[#0a1c33]" style={{ fontFamily: 'Source Serif 4' }}>
-                Family Members Relationship Assignment
-              </h3>
-              <button
-                type="button"
-                onClick={() => addFamilyMember()}
-                className="flex items-center gap-2 px-3 py-1.5 bg-[#143a63] text-white rounded-lg hover:bg-[#0a1c33] transition-colors text-sm"
-              >
-                <Plus className="w-4 h-4" />
-                Add Family Member
-              </button>
-            </div>
-
-            <p className="text-xs text-[#143a63]/60">
-              Associate each family member with a specific Head of Family so we can clearly identify where each dependent belongs within this household.
-            </p>
-
-            {/* Total Household Members */}
-            <div className="p-4 bg-[#f0f4f8] border border-[#e6e9ee] rounded-lg">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-                <div>
-                  <label className={labelClass}>
-                    Total Household Members
-                  </label>
-                  <input
-                    type="number"
-                    readOnly
-                    value={totalMembers}
-                    className="w-full px-4 py-3 bg-gray-100 border border-[#e6e9ee] rounded-lg text-[#0a1c33] font-semibold text-sm cursor-not-allowed"
-                    placeholder="Total members"
-                  />
-                  <p className="text-[10px] text-[#143a63]/50 mt-1">Autocalculated list total (Heads + Family Members)</p>
-                </div>
-                <div className="text-sm">
-                  <span className="text-[#143a63]/60">Heads of Family:</span>
-                  <span className="ml-2 font-semibold text-[#0a1c33]">{headsOfFamily.length}</span>
-                </div>
-                <div className="text-sm">
-                  <span className="text-[#143a63]/60">Family Members:</span>
-                  <span className="ml-2 font-semibold text-[#0a1c33]">{familyMembers.length}</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-6">
-              {headsOfFamily.map((head, headIndex) => {
-                const membersOfThisHead = familyMembers.filter(m => m.headOfFamilyId === head.id);
-                return (
-                  <div key={head.id} className="p-4 md:p-6 bg-gray-50 border border-gray-200 rounded-xl space-y-4">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-200">
-                      <div className="flex items-center gap-2">
-                        <span className="w-7 h-7 rounded-full bg-[#143a63] text-white flex items-center justify-center text-xs font-bold font-mono">
-                          {headIndex + 1}
-                        </span>
-                        <div>
-                          <h4 className="text-sm font-semibold text-[#0a1c33]">
-                            Members under Head of Family: <span className="text-[#c8a24b] font-bold">{head.name || `Unnamed Head ${headIndex + 1}`}</span>
-                          </h4>
-                          <p className="text-[10px] text-[#143a63]/50 uppercase tracking-widest font-semibold mt-0.5">
-                            Economic Head · Age: {head.age || 'N/A'} · Gender: {head.gender}
-                          </p>
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => addFamilyMember(head.id)}
-                        className="flex items-center gap-1 px-3 py-1.5 bg-[#4a7c59] text-white rounded-lg hover:bg-[#3d6b4a] transition-colors text-xs font-medium self-start sm:self-auto"
-                      >
-                        <Plus className="w-3.5 h-3.5" />
-                        Add Member under {head.name ? head.name.split(' ')[0] : `Head ${headIndex + 1}`}
-                      </button>
-                    </div>
-
-                    {membersOfThisHead.length === 0 ? (
-                      <div className="p-6 bg-white border border-dashed border-gray-300 rounded-lg text-center">
-                        <Users className="w-8 h-8 text-gray-300 mx-auto mb-1" />
-                        <p className="text-xs text-gray-500 font-medium">No family members registered under this head yet</p>
-                        <button
-                          type="button"
-                          onClick={() => addFamilyMember(head.id)}
-                          className="text-xs text-[#143a63] font-semibold hover:underline mt-1 inline-block"
-                        >
-                          Register first member
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="space-y-4">
-                        {membersOfThisHead.map((member, memberIndex) => (
-                          <div key={member.id} className="p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
-                            <div className="flex items-center justify-between mb-4 pb-2 border-b border-gray-50">
-                              <div className="flex items-center gap-2">
-                                <span className="w-5 h-5 rounded-full bg-[#4a7c59] text-white flex items-center justify-center text-[10px] font-bold">
-                                  {memberIndex + 1}
-                                </span>
-                                <span className="text-sm font-semibold text-[#0a1c33]">
-                                  {member.name || 'New Family Member'}
-                                  {member.relationship && (
-                                    <span className="ml-2 px-2 py-0.5 bg-gray-100 text-gray-600 text-[10px] rounded">{member.relationship}</span>
-                                  )}
-                                </span>
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() => removeFamilyMember(member.id)}
-                                className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                                title="Remove family member"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            </div>
-
-                            {/* Personal Info Row */}
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
-                              <div className="col-span-2">
-                                <label className={labelSmClass}>Full Name <span className="text-red-500">*</span></label>
-                                <input
-                                  type="text"
-                                  required
-                                  value={member.name}
-                                  onChange={(e) => updateFamilyMember(member.id, 'name', e.target.value)}
-                                  className={inputSmClass}
-                                  placeholder="Full Name"
-                                />
-                              </div>
-                              <div>
-                                <label className={labelSmClass}>Relationship to Head <span className="text-red-500">*</span></label>
-                                <select
-                                  required
-                                  value={member.relationship}
-                                  onChange={(e) => updateFamilyMember(member.id, 'relationship', e.target.value)}
-                                  className={inputSmClass}
-                                >
-                                  <option value="">Select</option>
-                                  <option value="Spouse">Spouse</option>
-                                  <option value="Son">Son</option>
-                                  <option value="Daughter">Daughter</option>
-                                  <option value="Father">Father</option>
-                                  <option value="Mother">Mother</option>
-                                  <option value="Brother">Brother</option>
-                                  <option value="Sister">Sister</option>
-                                  <option value="Grandparent">Grandparent</option>
-                                  <option value="Grandchild">Grandchild</option>
-                                  <option value="In-Law">In-Law</option>
-                                  <option value="Other Relative">Other Relative</option>
-                                  <option value="Non-Relative">Non-Relative</option>
-                                </select>
-                              </div>
-                              <div>
-                                <label className={labelSmClass}>Age</label>
-                                <input
-                                  type="number"
-                                  min="0"
-                                  max="150"
-                                  value={member.age || ''}
-                                  onChange={(e) => updateFamilyMember(member.id, 'age', parseInt(e.target.value) || 0)}
-                                  className={inputSmClass}
-                                  placeholder="Age"
-                                />
-                              </div>
-                            </div>
-
-                            {/* Gender, Occupation, and Assigned Head Row */}
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
-                              <div>
-                                <label className={labelSmClass}>Gender</label>
-                                <select
-                                  value={member.gender}
-                                  onChange={(e) => updateFamilyMember(member.id, 'gender', e.target.value)}
-                                  className={inputSmClass}
-                                >
-                                  <option value="Male">Male</option>
-                                  <option value="Female">Female</option>
-                                </select>
-                              </div>
-                              <div>
-                                <label className={labelSmClass}>Occupation</label>
-                                <input
-                                  type="text"
-                                  value={member.occupation}
-                                  onChange={(e) => updateFamilyMember(member.id, 'occupation', e.target.value)}
-                                  className={inputSmClass}
-                                  placeholder="e.g., Student, None, etc."
-                                />
-                              </div>
-                              <div>
-                                <label className={labelSmClass}>Employment Status</label>
-                                <select
-                                  value={member.employmentStatus}
-                                  onChange={(e) => updateFamilyMember(member.id, 'employmentStatus', e.target.value)}
-                                  className={inputSmClass}
-                                >
-                                  <option value="">Select Status</option>
-                                  <option value="Employed">Employed</option>
-                                  <option value="Self-Employed">Self-Employed</option>
-                                  <option value="Unemployed">Unemployed</option>
-                                  <option value="Student">Student</option>
-                                  <option value="Retired">Retired</option>
-                                  <option value="OFW">OFW</option>
-                                  <option value="Housewife/Househusband">Housewife/Househusband</option>
-                                  <option value="Not Applicable">Not Applicable (Minor)</option>
-                                </select>
-                              </div>
-                              <div>
-                                <label className={labelSmClass}>Belongs to Head</label>
-                                <select
-                                  value={member.headOfFamilyId}
-                                  onChange={(e) => updateFamilyMember(member.id, 'headOfFamilyId', e.target.value)}
-                                  className={inputSmClass}
-                                >
-                                  {headsOfFamily.map((h, i) => (
-                                    <option key={h.id} value={h.id}>
-                                      {h.name || `Head of Family ${i + 1}`}
-                                    </option>
-                                  ))}
-                                </select>
-                              </div>
-                            </div>
-
-                            {/* Economic Info Row */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-3 border-t border-gray-100">
-                              <div>
-                                <label className={labelSmClass}>Monthly Income (₱)</label>
-                                <input
-                                  type="number"
-                                  min="0"
-                                  value={member.monthlyIncome || ''}
-                                  onChange={(e) => updateFamilyMember(member.id, 'monthlyIncome', parseFloat(e.target.value) || 0)}
-                                  className={inputSmClass}
-                                  placeholder="0"
-                                />
-                              </div>
-                              <div>
-                                <label className={labelSmClass}>Education Level</label>
-                                <select
-                                  value={member.educationLevel}
-                                  onChange={(e) => updateFamilyMember(member.id, 'educationLevel', e.target.value)}
-                                  className={inputSmClass}
-                                >
-                                  <option value="">Select Level</option>
-                                  <option value="No Formal Education">No Formal Education</option>
-                                  <option value="Elementary">Elementary</option>
-                                  <option value="High School">High School</option>
-                                  <option value="Vocational">Vocational</option>
-                                  <option value="College">College</option>
-                                  <option value="Post-Graduate">Post-Graduate</option>
-                                  <option value="Not Applicable">Not Applicable</option>
-                                </select>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* Step 4: Housing and Services */}
-        {currentStep === 4 && (
-          <div className="space-y-6">
-            <h3 className="text-base font-semibold text-[#0a1c33] pb-3 border-b border-[#e6e9ee]" style={{ fontFamily: 'Source Serif 4' }}>
-              Housing and Access to Services
-            </h3>
-
-            <div>
-              <label className={labelClass}>
-                Housing Type <span className="text-red-500">*</span>
-              </label>
-              <select
-                required
-                value={formData.housingType}
-                onChange={(e) => setFormData({ ...formData, housingType: e.target.value })}
-                className={inputClass}
-              >
-                <option value="">Select Type</option>
-                <option value="Concrete">Concrete</option>
-                <option value="Mixed">Mixed (Semi-Concrete)</option>
-                <option value="Light Materials">Light Materials</option>
-                <option value="Makeshift">Makeshift</option>
-              </select>
-            </div>
-
-            <div>
-              <label className={labelClass}>Access to Services</label>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <label className={checkboxClass}>
-                  <input
-                    type="checkbox"
-                    checked={formData.accessToWater}
-                    onChange={(e) => setFormData({ ...formData, accessToWater: e.target.checked })}
-                    className="w-5 h-5 text-[#143a63] rounded border-[#e6e9ee] focus:ring-2 focus:ring-[#c8a24b]"
-                  />
-                  <span className="text-sm font-medium text-[#0a1c33]">Access to Safe Water</span>
-                </label>
-
-                <label className={checkboxClass}>
-                  <input
-                    type="checkbox"
-                    checked={formData.accessToElectricity}
-                    onChange={(e) => setFormData({ ...formData, accessToElectricity: e.target.checked })}
-                    className="w-5 h-5 text-[#143a63] rounded border-[#e6e9ee] focus:ring-2 focus:ring-[#c8a24b]"
-                  />
-                  <span className="text-sm font-medium text-[#0a1c33]">Access to Electricity</span>
-                </label>
-
-                <label className={checkboxClass}>
-                  <input
-                    type="checkbox"
-                    checked={formData.accessToInternet}
-                    onChange={(e) => setFormData({ ...formData, accessToInternet: e.target.checked })}
-                    className="w-5 h-5 text-[#143a63] rounded border-[#e6e9ee] focus:ring-2 focus:ring-[#c8a24b]"
-                  />
-                  <span className="text-sm font-medium text-[#0a1c33]">Access to Internet</span>
-                </label>
-
-                <label className={checkboxClass}>
-                  <input
-                    type="checkbox"
-                    checked={formData.healthInsurance}
-                    onChange={(e) => setFormData({ ...formData, healthInsurance: e.target.checked })}
-                    className="w-5 h-5 text-[#143a63] rounded border-[#e6e9ee] focus:ring-2 focus:ring-[#c8a24b]"
-                  />
-                  <span className="text-sm font-medium text-[#0a1c33]">Health Insurance (PhilHealth)</span>
-                </label>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Step 5: Disaster Risk */}
-        {currentStep === 5 && (
-          <div className="space-y-6">
-            <h3 className="text-base font-semibold text-[#0a1c33] pb-3 border-b border-[#e6e9ee]" style={{ fontFamily: 'Source Serif 4' }}>
-              Disaster Risk Assessment
-            </h3>
-
-            {/* Risk Levels by Type */}
-            <div>
-              <label className={labelClass}>Risk Assessment by Type</label>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {([
-                  { key: 'floodRisk', label: 'Flood Risk', color: 'blue' },
-                  { key: 'landslideRisk', label: 'Landslide Risk', color: 'amber' },
-                  { key: 'earthquakeRisk', label: 'Earthquake Risk', color: 'orange' },
-                  { key: 'fireRisk', label: 'Fire Risk', color: 'red' },
-                ] as const).map(({ key, label }) => (
-                  <div key={key} className="p-4 border border-[#e6e9ee] rounded-lg">
-                    <p className="text-sm font-medium text-[#0a1c33] mb-2">{label}</p>
-                    <div className="flex gap-2">
-                      {(['Low', 'Medium', 'High', 'Critical'] as RiskLevel[]).map((level) => (
-                        <button
-                          key={level}
-                          type="button"
-                          onClick={() => setDisasterRisk({ ...disasterRisk, [key]: level })}
-                          className={`flex-1 py-1.5 px-2 text-xs font-medium rounded transition-all ${
-                            disasterRisk[key] === level
-                              ? level === 'Critical' ? 'bg-red-600 text-white' :
-                                level === 'High' ? 'bg-red-500 text-white' :
-                                level === 'Medium' ? 'bg-amber-500 text-white' :
-                                'bg-green-500 text-white'
-                              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                          }`}
-                        >
-                          {level}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Vulnerable Members */}
-            <div className="pt-4 border-t border-[#e6e9ee]">
-              <div className="flex items-center justify-between mb-3">
-                <label className={labelClass}>Vulnerable Members</label>
-                <button
-                  type="button"
-                  onClick={() => setVulnerableMembers([...vulnerableMembers, {
-                    id: `vm-${Date.now()}`,
-                    name: '',
-                    relationship: '',
-                    age: 0,
-                    type: 'Elderly',
-                  }])}
-                  className="flex items-center gap-1 text-xs text-[#143a63] hover:underline"
-                >
-                  <Plus className="w-3 h-3" /> Add Vulnerable Member
-                </button>
-              </div>
-
-              {vulnerableMembers.length === 0 ? (
-                <p className="text-sm text-gray-500 italic">No vulnerable members added</p>
-              ) : (
-                <div className="space-y-3">
-                  {vulnerableMembers.map((member, index) => (
-                    <div key={member.id} className="p-3 bg-gray-50 border border-gray-200 rounded-lg">
-                      <div className="flex items-start justify-between gap-2 mb-2">
-                        <span className="text-xs font-medium text-gray-500">Vulnerable Member {index + 1}</span>
-                        <button
-                          type="button"
-                          onClick={() => setVulnerableMembers(vulnerableMembers.filter(m => m.id !== member.id))}
-                          className="text-red-500 hover:text-red-700"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                        <input
-                          type="text"
-                          placeholder="Name"
-                          value={member.name}
-                          onChange={(e) => {
-                            const updated = [...vulnerableMembers];
-                            updated[index].name = e.target.value;
-                            setVulnerableMembers(updated);
-                          }}
-                          className="px-2 py-1.5 text-sm border border-gray-200 rounded"
-                        />
-                        <input
-                          type="number"
-                          placeholder="Age"
-                          value={member.age || ''}
-                          onChange={(e) => {
-                            const updated = [...vulnerableMembers];
-                            updated[index].age = parseInt(e.target.value) || 0;
-                            setVulnerableMembers(updated);
-                          }}
-                          className="px-2 py-1.5 text-sm border border-gray-200 rounded"
-                        />
-                        <select
-                          value={member.type}
-                          onChange={(e) => {
-                            const updated = [...vulnerableMembers];
-                            updated[index].type = e.target.value as VulnerableMember['type'];
-                            setVulnerableMembers(updated);
-                          }}
-                          className="px-2 py-1.5 text-sm border border-gray-200 rounded"
-                        >
-                          <option value="Elderly">Elderly (60+)</option>
-                          <option value="PWD">PWD</option>
-                          <option value="Pregnant">Pregnant</option>
-                          <option value="Infant">Infant</option>
-                          <option value="Chronic Illness">Chronic Illness</option>
-                          <option value="Solo Parent">Solo Parent</option>
-                        </select>
-                        <input
-                          type="text"
-                          placeholder="Relationship"
-                          value={member.relationship}
-                          onChange={(e) => {
-                            const updated = [...vulnerableMembers];
-                            updated[index].relationship = e.target.value;
-                            setVulnerableMembers(updated);
-                          }}
-                          className="px-2 py-1.5 text-sm border border-gray-200 rounded"
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Evacuation Readiness */}
-            <div className="pt-4 border-t border-[#e6e9ee]">
-              <label className={labelClass}>Evacuation Readiness</label>
-              <div className="space-y-3">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  <label className={checkboxClass}>
-                    <input
-                      type="checkbox"
-                      checked={evacuationReadiness.hasEmergencyKit}
-                      onChange={(e) => setEvacuationReadiness({ ...evacuationReadiness, hasEmergencyKit: e.target.checked })}
-                      className="w-4 h-4"
-                    />
-                    <span className="text-sm">Has Emergency Kit</span>
-                  </label>
-                  <label className={checkboxClass}>
-                    <input
-                      type="checkbox"
-                      checked={evacuationReadiness.knowsEvacuationRoute}
-                      onChange={(e) => setEvacuationReadiness({ ...evacuationReadiness, knowsEvacuationRoute: e.target.checked })}
-                      className="w-4 h-4"
-                    />
-                    <span className="text-sm">Knows Evacuation Route</span>
-                  </label>
-                  <label className={checkboxClass}>
-                    <input
-                      type="checkbox"
-                      checked={evacuationReadiness.hasEmergencyContact}
-                      onChange={(e) => setEvacuationReadiness({ ...evacuationReadiness, hasEmergencyContact: e.target.checked })}
-                      className="w-4 h-4"
-                    />
-                    <span className="text-sm">Has Emergency Contact</span>
-                  </label>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-xs text-gray-500 mb-1 block">Nearest Evacuation Center</label>
-                    <select
-                      value={evacuationReadiness.nearestEvacuationCenter}
-                      onChange={(e) => setEvacuationReadiness({ ...evacuationReadiness, nearestEvacuationCenter: e.target.value })}
-                      className={inputClass}
-                    >
-                      <option value="">Select Center</option>
-                      {evacuationCenters.filter(c => c.isActive).map(center => (
-                        <option key={center.id} value={center.id}>{center.name} - {center.barangay}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="text-xs text-gray-500 mb-1 block">Estimated Evacuation Time (minutes)</label>
-                    <input
-                      type="number"
-                      min="0"
-                      value={evacuationReadiness.estimatedEvacuationTime || ''}
-                      onChange={(e) => setEvacuationReadiness({ ...evacuationReadiness, estimatedEvacuationTime: parseInt(e.target.value) || 0 })}
-                      className={inputClass}
-                      placeholder="e.g., 15"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Summary Preview */}
-            <div className="p-4 bg-[#f7f7f3] rounded-lg border border-[#e6e9ee]">
-              <p className="text-xs text-[#143a63]/60 uppercase tracking-wide mb-3">Data Summary</p>
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                <div>
-                  <span className="text-[#143a63]/60">Barangay:</span>
-                  <span className="ml-2 text-[#0a1c33] font-medium">{formData.barangay || '-'}</span>
-                </div>
-                <div>
-                  <span className="text-[#143a63]/60">Primary Head:</span>
-                  <span className="ml-2 text-[#0a1c33] font-medium">{primaryHead || '-'}</span>
-                </div>
-                <div>
-                  <span className="text-[#143a63]/60">Heads of Family:</span>
-                  <span className="ml-2 text-[#0a1c33] font-medium">{headsOfFamily.length}</span>
-                </div>
-                <div>
-                  <span className="text-[#143a63]/60">Total Members:</span>
-                  <span className="ml-2 text-[#0a1c33] font-medium">{totalMembers}</span>
-                </div>
-                <div>
-                  <span className="text-[#143a63]/60">Total Income:</span>
-                  <span className="ml-2 text-[#0a1c33] font-medium">₱{totalIncome.toLocaleString()}</span>
-                </div>
-                <div>
-                  <span className="text-[#143a63]/60">Overall Risk:</span>
-                  <span className={`ml-2 font-medium ${
-                    calculateOverallRisk(disasterRisk) === 'Critical' ? 'text-red-600' :
-                    calculateOverallRisk(disasterRisk) === 'High' ? 'text-red-500' :
-                    calculateOverallRisk(disasterRisk) === 'Medium' ? 'text-amber-600' : 'text-green-600'
-                  }`}>{calculateOverallRisk(disasterRisk)}</span>
-                </div>
-                <div>
-                  <span className="text-[#143a63]/60">Vulnerable:</span>
-                  <span className="ml-2 text-[#0a1c33] font-medium">{vulnerableMembers.length} member(s)</span>
-                </div>
-                {location && (
-                  <div className="col-span-2">
-                    <span className="text-[#143a63]/60">GPS:</span>
-                    <span className="ml-2 text-[#0a1c33] font-medium">
-                      {location.latitude.toFixed(6)}, {location.longitude.toFixed(6)}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Navigation Buttons */}
-        <div className="flex flex-col sm:flex-row gap-3 justify-between pt-6 mt-6 border-t border-[#e6e9ee]">
-          <div>
-            {currentStep > 1 && (
-              <button
-                type="button"
-                onClick={prevStep}
-                className="flex items-center gap-2 px-4 py-2 text-[#143a63] hover:bg-[#f7f7f3] rounded-lg transition-colors text-sm font-medium"
-              >
-                <ChevronLeft className="w-4 h-4" />
-                Previous
-              </button>
-            )}
-          </div>
-
-          <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={handleReset}
-              className="flex items-center gap-2 px-4 py-2 border border-[#e6e9ee] rounded-lg text-[#143a63]/70 hover:bg-[#f7f7f3] transition-colors text-sm"
-            >
-              <X className="w-4 h-4" />
-              Clear
-            </button>
-
-            {currentStep < 5 ? (
-              <button
-                type="button"
-                onClick={nextStep}
-                className="flex items-center gap-2 px-6 py-2 bg-[#143a63] text-white rounded-lg hover:bg-[#0a1c33] transition-colors text-sm font-medium"
-              >
-                Next
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            ) : (
-              <button
-                type="submit"
-                className="flex items-center gap-2 px-6 py-2 bg-[#4a7c59] text-white rounded-lg hover:bg-[#3d6b4a] transition-colors text-sm font-medium"
-              >
-                <Save className="w-4 h-4" />
-                Save Household
-              </button>
-            )}
           </div>
         </div>
-      </form>
+      )}
+    </div>
+  );
+
+  // Render Step 6: Review & Submit
+  const renderStep6 = () => (
+    <div className="space-y-6">
+      <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+        <Check className="w-5 h-5 text-green-600" />
+        Review & Submit
+      </h3>
+
+      {/* Household Summary */}
+      <div className="bg-white border border-gray-200 rounded-lg p-4">
+        <h4 className="font-medium text-gray-900 mb-3">Household Information</h4>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+          <div><span className="text-gray-500">Barangay:</span> <span className="font-medium">{householdInfo.barangay}</span></div>
+          <div><span className="text-gray-500">HH Number:</span> <span className="font-medium">{householdInfo.householdNumber}</span></div>
+          <div><span className="text-gray-500">Purok/Sitio:</span> <span className="font-medium">{householdInfo.purokSitio || '-'}</span></div>
+          <div><span className="text-gray-500">Contact:</span> <span className="font-medium">{householdInfo.contactNumber || '-'}</span></div>
+        </div>
+      </div>
+
+      {/* Members Summary */}
+      <div className="bg-white border border-gray-200 rounded-lg p-4">
+        <h4 className="font-medium text-gray-900 mb-3">Members ({totalMembers})</h4>
+        <div className="space-y-2">
+          {members.map(m => (
+            <div key={m.id} className="flex items-center justify-between text-sm py-2 border-b border-gray-100 last:border-0">
+              <div>
+                <span className="font-medium">{m.firstName} {m.lastName}</span>
+                {m.relationship === 'Head' && <span className="ml-2 text-xs bg-[#0a1c33]/10 text-[#0a1c33] px-2 py-0.5 rounded">Head</span>}
+              </div>
+              <div className="text-gray-500">
+                {m.age} yrs · {m.gender} · ₱{(m.monthlyIncome || 0).toLocaleString()}/mo
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Economic Summary */}
+      <div className="bg-white border border-gray-200 rounded-lg p-4">
+        <h4 className="font-medium text-gray-900 mb-3">Economic Status</h4>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+          <div><span className="text-gray-500">Total Income:</span> <span className="font-medium">₱{totalIncome.toLocaleString()}/mo</span></div>
+          <div><span className="text-gray-500">Poverty Level:</span> <span className={`font-medium ${
+            povertyLevel === 'Subsistence Poor' ? 'text-red-600' : povertyLevel === 'Poor' ? 'text-amber-600' : 'text-green-600'
+          }`}>{povertyLevel}</span></div>
+          <div><span className="text-gray-500">Housing:</span> <span className="font-medium">{economicData.housingType || '-'}</span></div>
+          <div><span className="text-gray-500">Water:</span> <span className="font-medium">{economicData.waterSource || '-'}</span></div>
+        </div>
+      </div>
+
+      {/* Services Summary */}
+      <div className="bg-white border border-gray-200 rounded-lg p-4">
+        <h4 className="font-medium text-gray-900 mb-3">Basic Services Access</h4>
+        <div className="flex flex-wrap gap-2">
+          {Object.entries(services).map(([key, value]) => (
+            <span
+              key={key}
+              className={`px-3 py-1 rounded-full text-xs font-medium ${
+                value ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
+              }`}
+            >
+              {key.replace('accessTo', '').replace(/([A-Z])/g, ' $1').trim()}: {value ? 'Yes' : 'No'}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* Risk Summary */}
+      <div className="bg-white border border-gray-200 rounded-lg p-4">
+        <h4 className="font-medium text-gray-900 mb-3">Disaster Risk</h4>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+          <div><span className="text-gray-500">Flood:</span> <span className="font-medium">{disasterRisk.floodRisk}</span></div>
+          <div><span className="text-gray-500">Landslide:</span> <span className="font-medium">{disasterRisk.landslideRisk}</span></div>
+          <div><span className="text-gray-500">Earthquake:</span> <span className="font-medium">{disasterRisk.earthquakeRisk}</span></div>
+          <div><span className="text-gray-500">Fire:</span> <span className="font-medium">{disasterRisk.fireRisk}</span></div>
+        </div>
+        {vulnerableMembers.length > 0 && (
+          <p className="mt-2 text-sm text-red-600">
+            {vulnerableMembers.length} vulnerable member(s) identified
+          </p>
+        )}
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="max-w-5xl mx-auto">
+      {/* Header */}
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">Data Collection</h1>
+        <p className="text-gray-600 mt-1">Collect household information following CBMS guidelines</p>
+      </div>
+
+      {/* Stepper */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between">
+          {steps.map((step, index) => (
+            <React.Fragment key={step.id}>
+              <div className="flex flex-col items-center">
+                <div
+                  className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
+                    currentStep === step.id
+                      ? 'bg-[#143a63] text-white'
+                      : currentStep > step.id
+                      ? 'bg-[#c8a24b] text-white'
+                      : 'bg-gray-200 text-gray-500'
+                  }`}
+                >
+                  {currentStep > step.id ? <Check className="w-5 h-5" /> : <step.icon className="w-5 h-5" />}
+                </div>
+                <span className={`mt-2 text-xs font-medium ${
+                  currentStep === step.id ? 'text-[#0a1c33]' : 'text-gray-500'
+                }`}>
+                  {step.label}
+                </span>
+              </div>
+              {index < steps.length - 1 && (
+                <div className={`flex-1 h-1 mx-2 rounded ${
+                  currentStep > step.id ? 'bg-[#c8a24b]' : 'bg-gray-200'
+                }`} />
+              )}
+            </React.Fragment>
+          ))}
+        </div>
+      </div>
+
+      {/* Form Content */}
+      <div className="bg-white border border-gray-200 rounded-xl p-6 mb-6">
+        {currentStep === 1 && renderStep1()}
+        {currentStep === 2 && renderStep2()}
+        {currentStep === 3 && renderStep3()}
+        {currentStep === 4 && renderStep4()}
+        {currentStep === 5 && renderStep5()}
+        {currentStep === 6 && renderStep6()}
+      </div>
+
+      {/* Navigation */}
+      <div className="flex justify-between">
+        <button
+          onClick={prevStep}
+          disabled={currentStep === 1}
+          className="flex items-center gap-2 px-6 py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        >
+          <ChevronLeft className="w-4 h-4" />
+          Previous
+        </button>
+
+        {currentStep < 6 ? (
+          <button
+            onClick={nextStep}
+            className="flex items-center gap-2 px-6 py-2.5 bg-[#143a63] text-white rounded-lg hover:bg-[#0e2a4a] transition-colors"
+          >
+            Next
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        ) : (
+          <button
+            onClick={handleSubmit}
+            className="flex items-center gap-2 px-6 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+          >
+            <Save className="w-4 h-4" />
+            Save Household
+          </button>
+        )}
+      </div>
     </div>
   );
 }
