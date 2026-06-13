@@ -18,6 +18,7 @@ export function UserManagement() {
     'Data Processor',
     'Enumerator',
     'Planning Officer',
+    'Mayor',
   ];
 
   const filteredUsers = users.filter((user) => {
@@ -73,6 +74,8 @@ export function UserManagement() {
         return 'bg-[#8b4513]/10 text-[#8b4513]';
       case 'Planning Officer':
         return 'bg-[#143a63]/5 text-[#143a63]/80';
+      case 'Mayor':
+        return 'bg-[#7c3aed]/15 text-[#7c3aed]';
       default:
         return 'bg-[#e6e9ee] text-[#143a63]/70';
     }

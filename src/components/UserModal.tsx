@@ -26,6 +26,7 @@ export function UserModal({ user, onSave, onClose }: UserModalProps) {
     'Data Processor',
     'Enumerator',
     'Planning Officer',
+    'Mayor',
   ];
 
   useEffect(() => {
