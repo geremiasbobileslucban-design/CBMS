@@ -270,7 +270,7 @@ function AppContent() {
 
         {/* Main Content */}
         <main className="flex-1 p-4 md:p-6 pt-20 lg:pt-6 overflow-y-auto overflow-x-hidden">
-          {currentView === 'dashboard' && <MayorDashboard />}
+          {currentView === 'dashboard' && (user.role === 'Mayor' ? <MayorDashboard /> : <Dashboard />)}
           {currentView === 'collection' && permissions.canCollectData && <DataCollection />}
           {currentView === 'households' && permissions.canViewReports && <HouseholdList />}
           {currentView === 'disaster' && permissions.canAccessDisasterRisk && <DisasterRisk />}
