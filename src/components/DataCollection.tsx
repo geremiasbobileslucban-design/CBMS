@@ -14,7 +14,7 @@ import {
   WATER_SOURCE_OPTIONS, INCOME_SOURCE_OPTIONS, RELATIONSHIP_OPTIONS,
   EMPLOYMENT_STATUS_OPTIONS, EDUCATION_LEVEL_OPTIONS, GRADE_LEVEL_OPTIONS,
   HOUSING_TYPE_OPTIONS, SUFFIX_OPTIONS, WaterSource, IncomeSource
-} from '../types/cbms';
+} from '../types/drhmms';
 import { useData } from '../context/DataContext';
 import { GPSCapture } from './gis';
 
@@ -1435,7 +1435,7 @@ export function DataCollection() {
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Data Collection</h1>
-        <p className="text-gray-600 mt-1">Collect household information following CBMS guidelines</p>
+        <p className="text-gray-600 mt-1">Collect household information following DRHMMS guidelines</p>
       </div>
 
       {/* Stepper */}

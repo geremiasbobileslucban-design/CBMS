@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { EvacuationReadiness } from '../../types/cbms';
+import { EvacuationReadiness } from '../../types/drhmms';
 import { Check, AlertTriangle, Package, Route, FileText, Phone, Building } from 'lucide-react';
 
 interface EvacuationReadinessFormProps {

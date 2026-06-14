@@ -22,7 +22,7 @@ export function UserModal({ user, onSave, onClose }: UserModalProps) {
 
   const roles: UserRole[] = [
     'PSA Administrator',
-    'LGU CBMS Focal Person',
+    'LGU DRHMMS Focal Person',
     'Data Processor',
     'Enumerator',
     'Planning Officer',

@@ -109,7 +109,7 @@ export function Analytics() {
         <h2 className="text-xl md:text-2xl font-semibold text-[#0a1c33]" style={{ fontFamily: 'Source Serif 4' }}>
           Analytics & Insights
         </h2>
-        <p className="text-sm text-[#143a63]/60 mt-1">Comprehensive analysis of CBMS data for San Jose City</p>
+        <p className="text-sm text-[#143a63]/60 mt-1">Comprehensive analysis of DRHMMS data for San Jose City</p>
       </div>
 
       {/* Tabs */}

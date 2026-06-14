@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useData } from '../../context/DataContext';
-import { BeneficiaryEnrollment } from '../../types/cbms';
+import { BeneficiaryEnrollment } from '../../types/drhmms';
 import { toast } from 'sonner';
 import {
   Search,

@@ -1,6 +1,6 @@
-# CBMS Application - Documentation Index
+# DRHMMS Application - Documentation Index
 
-Welcome to the CBMS (Community-Based Monitoring System) documentation. This index helps you find the right document for your needs.
+Welcome to the DRHMMS (Disaster Risk and Hazard Mapping Monitoring System) documentation. This index helps you find the right document for your needs.
 
 ## 🚨 DEPLOYMENT ISSUES? START HERE! 🚨
 
@@ -166,7 +166,7 @@ Check if your project is ready:
 ## 📊 Project Files Overview
 
 ```
-cbms-app/
+DRHMMS-app/
 ├── 📖 Documentation
 │   ├── DEPLOYMENT_SUMMARY.md     ⭐ Start here
 │   ├── QUICKSTART.md             ⚡ 5-minute guide
@@ -231,7 +231,7 @@ vercel --prod           # Deploy to production
 | Username | Password | Role |
 |----------|----------|------|
 | `psa.admin` | `admin123` | PSA Administrator |
-| `lgu.focal` | `focal123` | LGU CBMS Focal Person |
+| `lgu.focal` | `focal123` | LGU DRHMMS Focal Person |
 | `data.processor` | `processor123` | Data Processor |
 | `enumerator1` | `enum123` | Enumerator |
 | `planning.officer` | `planning123` | Planning Officer |

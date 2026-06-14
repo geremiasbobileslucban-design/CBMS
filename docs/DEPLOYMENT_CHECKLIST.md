@@ -1,4 +1,4 @@
-# ✅ CBMS Deployment Checklist
+# ✅ DRHMMS Deployment Checklist
 
 Use this checklist to ensure a smooth deployment to Vercel.
 
@@ -258,4 +258,4 @@ If using Git-based deployment:
 
 **🎉 Congratulations on your deployment!**
 
-If you checked all items above, your CBMS application is successfully deployed and ready for use!
+If you checked all items above, your DRHMMS application is successfully deployed and ready for use!

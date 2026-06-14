@@ -1,4 +1,4 @@
-# CBMS - Quick Start Guide
+# DRHMMS - Quick Start Guide
 
 ## ⚡ Fast Track to Deployment
 
@@ -46,7 +46,7 @@ git add .
 git commit -m "Initial commit"
 
 # Push to GitHub
-git remote add origin https://github.com/YOUR_USERNAME/cbms-app.git
+git remote add origin https://github.com/YOUR_USERNAME/drhmms-app.git
 git push -u origin main
 ```
 
@@ -57,7 +57,7 @@ Then:
 
 ## ✅ That's It!
 
-Your CBMS app is now live! 🎉
+Your DRHMMS app is now live! 🎉
 
 ## 📋 Post-Deployment Checklist
 

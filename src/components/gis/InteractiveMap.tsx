@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useData } from '../../context/DataContext';
 import { GoogleMapWrapper } from './GoogleMapWrapper';
 import { LayerToggle, defaultMapLayers, MapLayer } from './LayerToggle';
-import { Household } from '../../types/cbms';
+import { Household } from '../../types/drhmms';
 import { GOOGLE_MAPS_CONFIG } from '../../config/maps';
 
 interface InteractiveMapProps {

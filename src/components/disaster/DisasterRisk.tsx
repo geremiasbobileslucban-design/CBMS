@@ -4,7 +4,7 @@ import { DisasterRiskMap } from './DisasterRiskMap';
 import { RiskZoneModal } from './RiskZoneModal';
 import { VulnerableMembersList } from './VulnerableMembersList';
 import { EvacuationCenterList } from './EvacuationCenterList';
-import { RiskZone } from '../../types/cbms';
+import { RiskZone } from '../../types/drhmms';
 import {
   AlertTriangle,
   Map,

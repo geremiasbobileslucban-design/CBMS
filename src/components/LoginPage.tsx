@@ -90,12 +90,12 @@ export function LoginPage({ onLogin }: LoginPageProps) {
 
           <div className="space-y-6">
             <div>
-              <p className="eyebrow text-[#c8a24b] mb-3.5">LGU Portal · CBMS</p>
+              <p className="eyebrow text-[#c8a24b] mb-3.5">LGU Portal · DRHMMS</p>
               <h2
                 className="text-[52px] font-semibold leading-[1.05] tracking-[-0.015em] max-w-[540px]"
                 style={{ fontFamily: 'Source Serif 4' }}
               >
-                Community-Based Monitoring System
+                Disaster Risk and Hazard Mapping Monitoring System
               </h2>
               <p className="text-[16px] leading-relaxed text-[#b8c3d6] max-w-[480px] mt-6">
                 Evidence-based household data for local governance and poverty reduction, mandated under Republic Act No. 11315.
@@ -120,7 +120,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
         </div>
 
         <div className="relative text-[12px] text-[#8794ab] border-t border-white/[0.08] pt-5 mt-8">
-          <p>Republic Act No. 11315 · Community-Based Monitoring System Act</p>
+          <p>Republic Act No. 11315 - Community-Based Monitoring System Act</p>
           <p className="mt-1 opacity-70">© 2024 Philippine Statistics Authority · All rights reserved.</p>
         </div>
       </div>
@@ -143,7 +143,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                 <circle cx="30" cy="30" r="3.5" fill="#c8a24b"/>
               </svg>
               <div className="text-left">
-                <h1 className="text-xl font-bold text-[#0a1c33]">CBMS Portal</h1>
+                <h1 className="text-xl font-bold text-[#0a1c33]">DRHMMS Portal</h1>
                 <p className="text-[#c8a24b] text-xs">San Jose City LGU</p>
               </div>
             </div>

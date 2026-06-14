@@ -1,5 +1,5 @@
 
-  # Community-Based Monitoring System Prototype
+  # Disaster Risk and Hazard Mapping Monitoring System
 
   ## Running the code
 

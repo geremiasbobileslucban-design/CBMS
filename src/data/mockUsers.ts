@@ -18,7 +18,7 @@ export const mockUsers: User[] = [
     username: 'focal.sjc',
     email: 'focal@sjc.gov.ph',
     fullName: 'Juan Dela Cruz',
-    role: 'LGU CBMS Focal Person',
+    role: 'LGU DRHMMS Focal Person',
     lgu: 'San Jose City',
     province: 'Nueva Ecija',
     isActive: true,

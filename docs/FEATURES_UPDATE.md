@@ -1,4 +1,4 @@
-# CBMS Features Update - March 4, 2026
+# DRHMMS Features Update - March 4, 2026
 
 ## ✅ Newly Implemented Features
 
@@ -19,7 +19,7 @@
 #### HTML Report Export
 - **Functionality**: Generate formatted HTML report for printing/PDF conversion
 - **Features**:
-  - Professional report layout with CBMS branding
+  - Professional report layout with DRHMMS branding
   - Includes report metadata (date generated, filters applied)
   - Styled table with household data
   - Color-coded poverty level indicators
@@ -63,13 +63,13 @@
 
 #### Report Features
 - **Professional PSA-compliant format** including:
-  - Official CBMS header with LGU information
+  - Official DRHMMS header with LGU information
   - Report metadata (period, coverage, generation date)
   - Executive summary with key statistics
   - Basic Services Coverage table with access rates and gaps
   - Disaster Risk Assessment section
   - Detailed recommendations based on data
-  - Signature section for CBMS Focal Person and LCE
+  - Signature section for DRHMMS Focal Person and LCE
   - Legal compliance footer (RA 11315, RA 10173)
 
 - **Dynamic Data Integration**:
@@ -91,7 +91,7 @@
   - Service access counts (water, electricity, internet, health insurance)
   - High risk household count
 - **Quick data sharing** for spreadsheet analysis
-- **Filename format**: `CBMS_Report_Data_YYYY-MM-DD.csv`
+- **Filename format**: `DRHMMS_Report_Data_YYYY-MM-DD.csv`
 
 ---
 
@@ -245,10 +245,10 @@ const generatePovertyProfileReport = () => {
 - **Filtering logic** applied before export
 
 ### File Naming Convention
-- **CSV**: `CBMS_Households_Export_YYYY-MM-DD.csv`
-- **HTML (Households)**: `CBMS_Households_Report_YYYY-MM-DD.html`
-- **HTML (Reports)**: `CBMS_{reportType}_{barangay}_{period}.html`
-- **CSV (Reports)**: `CBMS_Report_Data_YYYY-MM-DD.csv`
+- **CSV**: `DRHMMS_Households_Export_YYYY-MM-DD.csv`
+- **HTML (Households)**: `DRHMMS_Households_Report_YYYY-MM-DD.html`
+- **HTML (Reports)**: `DRHMMS_{reportType}_{barangay}_{period}.html`
+- **CSV (Reports)**: `DRHMMS_Report_Data_YYYY-MM-DD.csv`
 
 ---
 

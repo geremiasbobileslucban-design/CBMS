@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useGeolocation } from '../../hooks/useGeolocation';
-import { GeoLocation } from '../../types/cbms';
+import { GeoLocation } from '../../types/drhmms';
 import { MiniMap } from './MiniMap';
 import { MapPin, Loader2, AlertCircle, Check, RefreshCw, X } from 'lucide-react';
 

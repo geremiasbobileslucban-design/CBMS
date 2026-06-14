@@ -1,6 +1,6 @@
-import { Household, BarangayStats } from '../types/cbms';
+import { Household, BarangayStats } from '../types/drhmms';
 
-// CBMS mock data for City of San Jose, Nueva Ecija
+// DRHMMS mock data for City of San Jose, Nueva Ecija
 // 38 barangays (real names). Numbers are illustrative for a design prototype.
 
 export interface BarangayData {

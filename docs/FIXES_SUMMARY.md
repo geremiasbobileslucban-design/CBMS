@@ -87,7 +87,7 @@ The project now supports both structures:
 
 ### Current (Works Without Reorganization)
 ```
-cbms-app/
+drhmms-app/
 ├── components/          ← Components at root
 ├── context/            ← Context at root
 ├── data/               ← Data at root
@@ -100,7 +100,7 @@ cbms-app/
 
 ### Recommended (After Running `npm run reorganize`)
 ```
-cbms-app/
+drhmms-app/
 └── src/
     ├── main.tsx        ← Entry point
     ├── App.tsx         ← Main component
@@ -352,4 +352,4 @@ If you encounter any issues:
 
 **All deployment blockers have been resolved!** 🚀
 
-Your CBMS application is now ready for production deployment to Vercel.
+Your DRHMMS application is now ready for production deployment to Vercel.

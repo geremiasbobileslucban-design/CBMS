@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
 import { GOOGLE_MAPS_CONFIG } from '../../config/maps';
-import { GeoLocation } from '../../types/cbms';
+import { GeoLocation } from '../../types/drhmms';
 import { Loader2 } from 'lucide-react';
 
 interface MiniMapProps {

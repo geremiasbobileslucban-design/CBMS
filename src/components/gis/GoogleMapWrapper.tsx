@@ -1,7 +1,7 @@
 import { useCallback, useState, memo } from 'react';
 import { GoogleMap, useJsApiLoader, Marker, Polygon, InfoWindow } from '@react-google-maps/api';
 import { GOOGLE_MAPS_CONFIG, FLOOD_ZONES, LANDSLIDE_ZONES, BARANGAY_CENTERS } from '../../config/maps';
-import { Household } from '../../types/cbms';
+import { Household } from '../../types/drhmms';
 import { Loader2, MapPin, AlertTriangle, Home, Building2 } from 'lucide-react';
 
 interface GoogleMapWrapperProps {

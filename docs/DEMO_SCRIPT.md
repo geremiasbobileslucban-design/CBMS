@@ -1,9 +1,9 @@
-# CBMS Demo Script & Application Purpose
+# DRHMMS Demo Script & Application Purpose
 
 ## 📋 Application Purpose
 
 ### Overview
-The **Community-Based Monitoring System (CBMS)** is a comprehensive web-based platform designed to support Local Government Units (LGUs) in the Philippines in complying with **Republic Act No. 11315** - the mandatory data gathering and information management system for poverty reduction and development planning.
+The **Disaster Risk and Hazard Mapping Monitoring System (DRHMMS)** is a comprehensive web-based platform designed to support Local Government Units (LGUs) in the Philippines in complying with **Republic Act No. 11315** - the mandatory data gathering and information management system for poverty reduction and development planning.
 
 ### Key Objectives
 1. **Standardized Data Collection**: Enable systematic collection of household-level socio-economic data following PSA (Philippine Statistics Authority) standards
@@ -11,11 +11,11 @@ The **Community-Based Monitoring System (CBMS)** is a comprehensive web-based pl
 3. **Real-Time Analytics**: Provide instant insights for evidence-based policy planning and decision-making
 4. **Poverty Assessment**: Automatically calculate poverty levels based on household income and family size
 5. **Compliance & Reporting**: Generate official reports that meet PSA requirements and data privacy standards
-6. **Development Planning**: Support the 7-phase CBMS workflow from planning through monitoring and utilization
+6. **Development Planning**: Support the 7-phase DRHMMS workflow from planning through monitoring and utilization
 
 ### Target Users
 - **PSA Administrators**: National-level oversight and management
-- **LGU CBMS Focal Persons**: Municipal/city-level coordination
+- **LGU DRHMMS Focal Persons**: Municipal/city-level coordination
 - **Data Processors**: Data validation and quality control
 - **Enumerators**: Field workers collecting household data
 - **Planning Officers**: Policy makers using data for planning
@@ -28,7 +28,7 @@ The **Community-Based Monitoring System (CBMS)** is a comprehensive web-based pl
 - **URL**: Open the application in a web browser
 - **Demo Credentials Available**:
   - PSA Administrator: `admin` / `admin123`
-  - LGU CBMS Focal Person: `focal.lipa` / `focal123`
+  - LGU DRHMMS Focal Person: `focal.lipa` / `focal123`
   - Data Processor: `processor.lipa` / `process123`
   - Enumerator: `enum.brgy1` / `enum123`
   - Planning Officer: `planning.lipa` / `plan123`
@@ -41,12 +41,12 @@ The **Community-Based Monitoring System (CBMS)** is a comprehensive web-based pl
 
 #### Step 1: Login Page Overview
 **What to Show:**
-- Professional login interface with CBMS branding
+- Professional login interface with DRHMMS branding
 - Philippine Statistics Authority - LGU Portal header
 - Security shield icon representing data protection
 
 **What to Say:**
-> "Welcome to the Community-Based Monitoring System. This is the secure entry point for all authorized LGU personnel. The system is designed to comply with Republic Act No. 11315, which mandates that all LGUs collect and maintain household-level socio-economic data for poverty reduction and development planning."
+> "Welcome to the Disaster Risk and Hazard Mapping Monitoring System. This is the secure entry point for all authorized LGU personnel. The system is designed to comply with Republic Act No. 11315, which mandates that all LGUs collect and maintain household-level socio-economic data for poverty reduction and development planning."
 
 **Action:**
 - Point out the login form
@@ -307,7 +307,7 @@ Complete the form with sample data:
 
 ### Part 7: User Management (6 minutes)
 
-**Note:** Logout and login as **PSA Administrator** or **LGU CBMS Focal Person**
+**Note:** Logout and login as **PSA Administrator** or **LGU DRHMMS Focal Person**
 
 #### Step 18: Re-login as Admin
 **What to Do:**
@@ -354,7 +354,7 @@ Complete the form with sample data:
   - Status: Active
 
 **What to Say:**
-> "Adding a new user is straightforward. The administrator fills in basic information, assigns a role which automatically determines their permissions, and specifies their LGU assignment. Notice how role selection is done through a dropdown with all five official CBMS roles."
+> "Adding a new user is straightforward. The administrator fills in basic information, assigns a role which automatically determines their permissions, and specifies their LGU assignment. Notice how role selection is done through a dropdown with all five official DRHMMS roles."
 
 **What to Do:**
 - Click "Save" button
@@ -441,12 +441,12 @@ Quickly cycle through different user roles to show permission differences:
 **What to Say:**
 > "Planning Officers have read-only access to analytics and reports for policy planning, but cannot modify data or manage users. This ensures data integrity while supporting evidence-based decision making."
 
-**LGU CBMS Focal Person View:**
+**LGU DRHMMS Focal Person View:**
 - Logout and login as `focal.lipa` / `focal123`
 - Show navigation: All modules except limited national-level features
 
 **What to Say:**
-> "The CBMS Focal Person is the LGU-level administrator. They have comprehensive access to collect data, process submissions, manage local users, access analytics, and generate reports. They serve as the coordination point between enumerators and national PSA offices."
+> "The DRHMMS Focal Person is the LGU-level administrator. They have comprehensive access to collect data, process submissions, manage local users, access analytics, and generate reports. They serve as the coordination point between enumerators and national PSA offices."
 
 **PSA Administrator View:**
 - Logout and login as `admin` / `admin123`
@@ -491,9 +491,9 @@ Quickly cycle through different user roles to show permission differences:
 
 ### Part 10: Data Flow & Workflow (4 minutes)
 
-#### Step 29: Explain the 7-Phase CBMS Workflow
+#### Step 29: Explain the 7-Phase DRHMMS Workflow
 **What to Say:**
-> "The system supports the complete 7-phase CBMS workflow mandated by RA 11315:"
+> "The system supports the complete 7-phase DRHMMS workflow mandated by RA 11315:"
 
 **Phase 1: Planning and Preparation**
 - User management sets up accounts for enumerators
@@ -533,7 +533,7 @@ Quickly cycle through different user roles to show permission differences:
 #### Step 30: Recap Major Features
 
 **What to Say:**
-> "Let me summarize the key features that make this CBMS platform effective:"
+> "Let me summarize the key features that make this DRHMMS platform effective:"
 
 **1. Comprehensive Data Collection**
 - Covers all PSA-mandated indicators
@@ -607,7 +607,7 @@ Quickly cycle through different user roles to show permission differences:
 - Advanced data validation rules
 - Audit logging and activity tracking
 - Geospatial mapping integration
-- Export to CBMS standard XML format
+- Export to DRHMMS standard XML format
 
 ---
 
@@ -618,7 +618,7 @@ Quickly cycle through different user roles to show permission differences:
 **What to Say:**
 > "This system is designed to comply with key Philippine regulations and standards:"
 
-**Republic Act No. 11315 (CBMS Act)**
+**Republic Act No. 11315 (DRHMMS Act)**
 - Mandates LGU data collection
 - Defines data elements and indicators
 - Requires regular updates and reporting
@@ -631,7 +631,7 @@ Quickly cycle through different user roles to show permission differences:
 **PSA Standards**
 - Poverty thresholds based on official PSA metrics
 - Report formats match PSA requirements
-- Data elements align with national CBMS framework
+- Data elements align with national DRHMMS framework
 
 **Local Government Code**
 - Supports LGU autonomy in data management
@@ -749,7 +749,7 @@ A: The system includes all PSA-mandated reports: Statistical Summary, Poverty Pr
 - Focus on system management
 
 ### Presentation Tips
-1. **Start with context**: Explain why CBMS matters (poverty reduction, legal mandate)
+1. **Start with context**: Explain why DRHMMS matters (poverty reduction, legal mandate)
 2. **Use real scenarios**: "Imagine you're an enumerator in Barangay 5..."
 3. **Show, don't tell**: Live demonstrations are more powerful than slides
 4. **Highlight automation**: Emphasize what the system does automatically
@@ -792,11 +792,11 @@ A: The system includes all PSA-mandated reports: Statistical Summary, Poverty Pr
 ## 🚀 Closing Statement
 
 **What to Say:**
-> "The Community-Based Monitoring System transforms how Local Government Units fulfill their mandate under RA 11315. By digitalizing data collection, automating calculations, enforcing quality controls, and providing real-time analytics, this platform empowers LGUs to make evidence-based decisions that directly impact poverty reduction and community development.
+> "The Disaster Risk and Hazard Mapping Monitoring System transforms how Local Government Units fulfill their mandate under RA 11315. By digitalizing data collection, automating calculations, enforcing quality controls, and providing real-time analytics, this platform empowers LGUs to make evidence-based decisions that directly impact poverty reduction and community development.
 >
-> The system respects the roles and workflows already established in CBMS operations while introducing efficiencies that save time and improve accuracy. Most importantly, it makes poverty data actionable - turning numbers into insights, and insights into programs that improve Filipino lives.
+> The system respects the roles and workflows already established in DRHMMS operations while introducing efficiencies that save time and improve accuracy. Most importantly, it makes poverty data actionable - turning numbers into insights, and insights into programs that improve Filipino lives.
 >
-> Whether you're an enumerator in the field, a data processor ensuring quality, a planning officer designing interventions, or an administrator overseeing operations, this system provides the tools you need to effectively implement CBMS in your community."
+> Whether you're an enumerator in the field, a data processor ensuring quality, a planning officer designing interventions, or an administrator overseeing operations, this system provides the tools you need to effectively implement DRHMMS in your community."
 
 ---
 
@@ -807,7 +807,7 @@ A: The system includes all PSA-mandated reports: Statistical Summary, Poverty Pr
 1. **Needs Assessment**: Discuss specific LGU requirements and customizations
 2. **Infrastructure Planning**: Assess hosting, domain, and connectivity needs
 3. **Training Program**: Develop role-specific training materials
-4. **Data Migration**: Plan migration of existing CBMS data (if applicable)
+4. **Data Migration**: Plan migration of existing DRHMMS data (if applicable)
 5. **Pilot Implementation**: Start with 1-2 barangays before full rollout
 6. **Feedback & Iteration**: Gather user feedback and refine
 7. **Full Deployment**: Roll out to all barangays with support structure
@@ -819,7 +819,7 @@ A: The system includes all PSA-mandated reports: Statistical Summary, Poverty Pr
 | Role | Username | Password | Access Level |
 |------|----------|----------|--------------|
 | PSA Administrator | admin | admin123 | National (Full Access) |
-| LGU CBMS Focal Person | focal.lipa | focal123 | LGU (Nearly Full) |
+| LGU DRHMMS Focal Person | focal.lipa | focal123 | LGU (Nearly Full) |
 | Data Processor | processor.lipa | process123 | LGU (Process/View) |
 | Enumerator | enum.brgy1 | enum123 | Barangay (Collect Only) |
 | Planning Officer | planning.lipa | plan123 | LGU (View/Analyze) |
@@ -850,7 +850,7 @@ A: The system includes all PSA-mandated reports: Statistical Summary, Poverty Pr
 ✅ **Visual Analytics**: Charts for trend analysis and comparisons
 
 ### Compliance
-✅ **RA 11315 Compliant**: Meets CBMS Act requirements
+✅ **RA 11315 Compliant**: Meets DRHMMS Act requirements
 ✅ **PSA Standards**: Follows official poverty thresholds and indicators
 ✅ **Data Privacy**: Role-based access protects personal information
 ✅ **Audit Trail**: User and timestamp tracking
@@ -859,6 +859,6 @@ A: The system includes all PSA-mandated reports: Statistical Summary, Poverty Pr
 
 **Document Version**: 1.0  
 **Last Updated**: March 4, 2026  
-**Application**: Community-Based Monitoring System (CBMS)  
+**Application**: Disaster Risk and Hazard Mapping Monitoring System (DRHMMS)  
 **Target Deployment**: Philippine Local Government Units  
-**Legal Basis**: Republic Act No. 11315 (CBMS Act)
+**Legal Basis**: Republic Act No. 11315 (DRHMMS Act)

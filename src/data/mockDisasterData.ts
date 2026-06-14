@@ -1,4 +1,4 @@
-import { RiskZone, EvacuationCenter, SocialProgram, VulnerableMember } from '../types/cbms';
+import { RiskZone, EvacuationCenter, SocialProgram, VulnerableMember } from '../types/drhmms';
 
 // Risk Zones for San Jose City
 export const mockRiskZones: RiskZone[] = [

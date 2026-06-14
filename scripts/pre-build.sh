@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "========================================="
-echo "CBMS Pre-Build Verification"
+echo "DRHMMS Pre-Build Verification"
 echo "========================================="
 echo ""
 

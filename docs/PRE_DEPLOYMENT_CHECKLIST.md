@@ -1,6 +1,6 @@
 # Pre-Deployment Checklist
 
-Use this checklist to ensure your CBMS application is ready for production deployment.
+Use this checklist to ensure your DRHMMS application is ready for production deployment.
 
 ## 📁 Project Structure
 
@@ -215,7 +215,7 @@ Within 24 hours:
 
 ## 🎉 Ready to Deploy!
 
-If all checkboxes are checked, you're ready to deploy your CBMS application to production!
+If all checkboxes are checked, you're ready to deploy your DRHMMS application to production!
 
 ---
 

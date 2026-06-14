@@ -13,9 +13,9 @@
         registerType: 'autoUpdate',
         includeAssets: ['san-jose-logo.png', 'pwa-192x192.png', 'pwa-512x512.png'],
         manifest: {
-          name: 'CBMS - Community Based Monitoring System',
-          short_name: 'CBMS',
-          description: 'Community-Based Monitoring System for San Jose City, Nueva Ecija - LGU Portal',
+          name: 'DRHMMS - Community Based Monitoring System',
+          short_name: 'DRHMMS',
+          description: 'Disaster Risk and Hazard Mapping Monitoring System for San Jose City, Nueva Ecija - LGU Portal',
           theme_color: '#0a1c33',
           background_color: '#fbf5e1',
           display: 'standalone',

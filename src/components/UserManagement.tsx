@@ -14,7 +14,7 @@ export function UserManagement() {
 
   const roles: UserRole[] = [
     'PSA Administrator',
-    'LGU CBMS Focal Person',
+    'LGU DRHMMS Focal Person',
     'Data Processor',
     'Enumerator',
     'Planning Officer',
@@ -66,7 +66,7 @@ export function UserManagement() {
     switch (role) {
       case 'PSA Administrator':
         return 'bg-[#143a63]/10 text-[#143a63]';
-      case 'LGU CBMS Focal Person':
+      case 'LGU DRHMMS Focal Person':
         return 'bg-[#c8a24b]/15 text-[#8b6914]';
       case 'Data Processor':
         return 'bg-[#4a7c59]/15 text-[#4a7c59]';

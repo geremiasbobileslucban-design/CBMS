@@ -1,4 +1,4 @@
-# CBMS Deployment Fix Guide
+# DRHMMS Deployment Fix Guide
 
 ## Issues Addressed
 
@@ -87,7 +87,7 @@ vercel --prod
 ### Before Reorganization
 
 ```
-cbms-app/
+drhmms-app/
 ├── App.tsx                    ⚠️ Protected file (can't delete)
 ├── components/                 ← Components at root
 ├── context/                    ← Context at root
@@ -104,7 +104,7 @@ cbms-app/
 ### After Reorganization
 
 ```
-cbms-app/
+drhmms-app/
 ├── App.tsx                    ⚠️ Protected (ignored during build)
 ├── src/
 │   ├── main.tsx               ✅ Entry point

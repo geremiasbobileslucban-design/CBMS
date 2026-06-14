@@ -1,6 +1,6 @@
 export type UserRole =
   | 'PSA Administrator'
-  | 'LGU CBMS Focal Person'
+  | 'LGU DRHMMS Focal Person'
   | 'Data Processor'
   | 'Enumerator'
   | 'Planning Officer'
@@ -48,7 +48,7 @@ export const rolePermissions: Record<UserRole, {
     canViewBeneficiaries: true,
     accessLevel: 'National',
   },
-  'LGU CBMS Focal Person': {
+  'LGU DRHMMS Focal Person': {
     canCollectData: true,
     canProcessData: true,
     canViewReports: true,

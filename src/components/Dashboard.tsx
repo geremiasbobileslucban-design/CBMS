@@ -4,7 +4,7 @@ import { barangayData, TOTAL_HH, TOTAL_POOR, TOTAL_POP } from '../data/mockData'
 import { useData } from '../context/DataContext';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { GoogleMapWrapper } from './gis/GoogleMapWrapper';
-import { Household } from '../types/cbms';
+import { Household } from '../types/drhmms';
 
 
 // Sparkline Component

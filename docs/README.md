@@ -1,6 +1,6 @@
-# CBMS - Community-Based Monitoring System
+# DRHMMS - Disaster Risk and Hazard Mapping Monitoring System
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/YOUR_USERNAME/cbms-app)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/YOUR_USERNAME/drhmms-app)
 
 A comprehensive data-gathering and information management system for Philippine Statistics Authority (PSA) and Local Government Units (LGUs) to collect household-level socio-economic data for poverty reduction and development planning, as mandated by Republic Act No. 11315.
 
@@ -8,7 +8,7 @@ A comprehensive data-gathering and information management system for Philippine 
 
 ### Multi-Role Support
 - **PSA Administrator**: Full system access with national-level oversight
-- **LGU CBMS Focal Person**: Local government unit management and coordination
+- **LGU DRHMMS Focal Person**: Local government unit management and coordination
 - **Data Processor**: Data processing, validation, and quality control
 - **Enumerator**: Field data collection and household surveys
 - **Planning Officer**: Analytics, reporting, and strategic planning
@@ -41,8 +41,8 @@ A comprehensive data-gathering and information management system for Philippine 
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/YOUR_USERNAME/cbms-app.git
-   cd cbms-app
+   git clone https://github.com/YOUR_USERNAME/drhmms-app.git
+   cd drhmms-app
    ```
 
 2. **Reorganize project structure** (first time only)
@@ -71,7 +71,7 @@ Use these credentials to test different user roles:
 | Role | Username | Password |
 |------|----------|----------|
 | PSA Administrator | `psa.admin` | `admin123` |
-| LGU CBMS Focal Person | `lgu.focal` | `focal123` |
+| LGU DRHMMS Focal Person | `lgu.focal` | `focal123` |
 | Data Processor | `data.processor` | `processor123` |
 | Enumerator | `enumerator1` | `enum123` |
 | Planning Officer | `planning.officer` | `planning123` |
@@ -125,7 +125,7 @@ The following issues are now **FIXED**:
 ## 🏗️ Project Structure
 
 ```
-cbms-app/
+drhmms-app/
 ├── src/
 │   ├── components/
 │   │   ├── ui/              # Reusable UI components
@@ -143,7 +143,7 @@ cbms-app/
 │   │   └── mockUsers.ts     # User credentials
 │   ├── types/
 │   │   ├── auth.ts          # Authentication types
-│   │   └── cbms.ts          # CBMS data types
+│   │   └── drhmms.ts          # DRHMMS data types
 │   ├── styles/
 │   │   └── globals.css      # Global styles
 │   ├── App.tsx              # Main application
@@ -168,9 +168,9 @@ cbms-app/
 - **State Management**: React Context API
 - **Deployment**: Vercel
 
-## 📊 CBMS Workflow
+## 📊 DRHMMS Workflow
 
-The system implements the 7-phase CBMS workflow:
+The system implements the 7-phase DRHMMS workflow:
 
 1. **Planning & Preparation**: System setup and user onboarding
 2. **Data Collection**: Field enumeration and household surveys
@@ -254,7 +254,7 @@ For issues and questions:
 - Philippine Statistics Authority (PSA)
 - Local Government Units (LGUs)
 - Republic Act No. 11315
-- Community-Based Monitoring System stakeholders
+- Disaster Risk and Hazard Mapping Monitoring System stakeholders
 
 ---
 

@@ -3,7 +3,7 @@ import { Search, Filter, Download, Trash2, Eye, FileSpreadsheet, FileText, Users
 import { toast } from "sonner";
 import { barangays } from '../data/mockData';
 import { useData } from '../context/DataContext';
-import { Household } from '../types/cbms';
+import { Household } from '../types/drhmms';
 import { GoogleMapWrapper } from './gis/GoogleMapWrapper';
 import { GOOGLE_MAPS_CONFIG } from '../config/maps';
 
@@ -85,7 +85,7 @@ export function HouseholdList() {
     const url = URL.createObjectURL(blob);
 
     link.setAttribute('href', url);
-    link.setAttribute('download', `CBMS_Households_Export_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute('download', `DRHMMS_Households_Export_${new Date().toISOString().split('T')[0]}.csv`);
     link.style.visibility = 'hidden';
 
     document.body.appendChild(link);
@@ -110,7 +110,7 @@ export function HouseholdList() {
       <!DOCTYPE html>
       <html>
       <head>
-        <title>CBMS Household Data Report - San Jose City</title>
+        <title>DRHMMS Household Data Report - San Jose City</title>
         <style>
           body { font-family: 'Segoe UI', Arial, sans-serif; padding: 20px; background: #f7f7f3; }
           .container { max-width: 1200px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; }
@@ -142,11 +142,11 @@ export function HouseholdList() {
       <body>
         <div class="container">
           <div class="republic-bar">
-            Republic of the Philippines · <span>Philippine Statistics Authority</span> · <span>CBMS</span>
+            Republic of the Philippines · <span>Philippine Statistics Authority</span> · <span>DRHMMS</span>
           </div>
 
           <div class="header">
-            <h1>Community-Based Monitoring System</h1>
+            <h1>Disaster Risk and Hazard Mapping Monitoring System</h1>
             <h2>Household Data Report - San Jose City, Nueva Ecija</h2>
             <div class="meta">
               <p><strong>Generated:</strong> ${new Date().toLocaleString()}</p>
@@ -210,7 +210,7 @@ export function HouseholdList() {
 
           <div class="footer">
             <p><strong>Philippine Statistics Authority</strong> - San Jose City Local Government Unit</p>
-            <p>Community-Based Monitoring System (CBMS) under RA 11315</p>
+            <p>Disaster Risk and Hazard Mapping Monitoring System (DRHMMS) under RA 11315</p>
             <p style="color: #c8a24b;">This report contains confidential information protected under RA 10173 (Data Privacy Act)</p>
           </div>
         </div>
@@ -224,7 +224,7 @@ export function HouseholdList() {
     const url = URL.createObjectURL(blob);
 
     link.setAttribute('href', url);
-    link.setAttribute('download', `CBMS_Households_Report_${new Date().toISOString().split('T')[0]}.html`);
+    link.setAttribute('download', `DRHMMS_Households_Report_${new Date().toISOString().split('T')[0]}.html`);
     link.style.visibility = 'hidden';
 
     document.body.appendChild(link);

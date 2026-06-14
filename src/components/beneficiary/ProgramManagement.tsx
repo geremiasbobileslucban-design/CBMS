@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useData } from '../../context/DataContext';
-import { SocialProgram } from '../../types/cbms';
+import { SocialProgram } from '../../types/drhmms';
 import {
   Search,
   Building2,

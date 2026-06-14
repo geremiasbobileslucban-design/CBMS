@@ -2,7 +2,7 @@
 
 # Script to reorganize files for Vite/Vercel deployment
 echo "========================================"
-echo "CBMS Project Reorganization Script"
+echo "DRHMMS Project Reorganization Script"
 echo "========================================"
 echo ""
 

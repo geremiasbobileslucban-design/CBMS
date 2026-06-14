@@ -1,4 +1,4 @@
-# 🚀 START HERE - CBMS Deployment
+# 🚀 START HERE - DRHMMS Deployment
 
 ## ⚠️ ENCOUNTERED DEPLOYMENT ERRORS?
 

@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { GeoLocation } from '../types/cbms';
+import { GeoLocation } from '../types/drhmms';
 
 interface GeolocationState {
   location: GeoLocation | null;

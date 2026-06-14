@@ -2,7 +2,7 @@ import { useState, useCallback, memo } from 'react';
 import { GoogleMap, useJsApiLoader, Marker, Polygon, InfoWindow } from '@react-google-maps/api';
 import { useData } from '../../context/DataContext';
 import { GOOGLE_MAPS_CONFIG, BARANGAY_CENTERS, FLOOD_ZONES, LANDSLIDE_ZONES } from '../../config/maps';
-import { RiskZone, Household } from '../../types/cbms';
+import { RiskZone, Household } from '../../types/drhmms';
 import { Loader2, MapPin, AlertTriangle, Building2 } from 'lucide-react';
 
 interface DisasterRiskMapProps {

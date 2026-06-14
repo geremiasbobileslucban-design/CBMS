@@ -2,7 +2,7 @@
 
 # Safe reorganization script that handles existing src/ files
 echo "========================================="
-echo "CBMS Safe Reorganization Script"
+echo "DRHMMS Safe Reorganization Script"
 echo "========================================="
 echo ""
 

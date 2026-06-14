@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useData } from '../../context/DataContext';
-import { EvacuationCenter } from '../../types/cbms';
+import { EvacuationCenter } from '../../types/drhmms';
 import {
   Building2,
   Users,

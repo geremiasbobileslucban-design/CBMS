@@ -1,4 +1,4 @@
-# CBMS Application - Vercel Deployment Guide
+# DRHMMS Application - Vercel Deployment Guide
 
 ## Prerequisites
 
@@ -13,7 +13,7 @@ Before deploying, ensure you have:
 The project needs to be organized with the following structure:
 
 ```
-cbms-app/
+drhmms-app/
 ├── src/
 │   ├── components/       # React components
 │   ├── context/          # React Context providers
@@ -108,7 +108,7 @@ Visit `http://localhost:3000` to verify the application works correctly.
 
 4. Follow the prompts:
    - Link to existing project? **No** (first time)
-   - Project name: **cbms-app** (or your preferred name)
+   - Project name: **drhmms-app** (or your preferred name)
    - Directory with code: **./** (press Enter)
    - Override settings? **No** (press Enter)
 
@@ -118,9 +118,9 @@ Visit `http://localhost:3000` to verify the application works correctly.
    ```bash
    git init
    git add .
-   git commit -m "Initial commit - CBMS application"
+   git commit -m "Initial commit - DRHMMS application"
    git branch -M main
-   git remote add origin https://github.com/YOUR_USERNAME/cbms-app.git
+   git remote add origin https://github.com/YOUR_USERNAME/drhmms-app.git
    git push -u origin main
    ```
 
@@ -273,7 +273,7 @@ For testing after deployment, use the default credentials from `src/data/mockUse
 - Username: `psa.admin`
 - Password: `admin123`
 
-**LGU CBMS Focal Person:**
+**LGU DRHMMS Focal Person:**
 - Username: `lgu.focal`
 - Password: `focal123`
 

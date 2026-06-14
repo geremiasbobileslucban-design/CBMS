@@ -7,7 +7,7 @@ import {
   BeneficiaryEnrollment,
   PendingSyncItem,
   SyncStatus as SyncStatusType
-} from '../types/cbms';
+} from '../types/drhmms';
 import { User } from '../types/auth';
 import { mockHouseholds as initialHouseholds } from '../data/mockData';
 import { mockUsers as initialUsers } from '../data/mockUsers';
@@ -19,10 +19,10 @@ import {
 
 // Offline storage keys
 const STORAGE_KEYS = {
-  HOUSEHOLDS: 'cbms_households',
-  ENROLLMENTS: 'cbms_enrollments',
-  PENDING_SYNC: 'cbms_pending_sync',
-  RISK_ZONES: 'cbms_risk_zones',
+  HOUSEHOLDS: 'drhmms_households',
+  ENROLLMENTS: 'drhmms_enrollments',
+  PENDING_SYNC: 'drhmms_pending_sync',
+  RISK_ZONES: 'drhmms_risk_zones',
 };
 
 interface DataContextType {

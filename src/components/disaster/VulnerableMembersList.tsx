@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useData } from '../../context/DataContext';
-import { VulnerableMember } from '../../types/cbms';
+import { VulnerableMember } from '../../types/drhmms';
 import { sampleVulnerableMembers } from '../../data/mockDisasterData';
 import { User, Baby, Heart, Eye, UserCircle, Search, Filter, Download } from 'lucide-react';
 

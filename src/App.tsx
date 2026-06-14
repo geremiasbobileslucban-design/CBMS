@@ -65,7 +65,7 @@ function AppContent() {
         <span className="hidden sm:inline mx-2 text-[#c8a24b]">·</span>
         <span className="font-medium">Philippine Statistics Authority</span>
         <span className="mx-2 text-[#c8a24b]">·</span>
-        <span className="text-[#c8a24b]">CBMS</span>
+        <span className="text-[#c8a24b]">DRHMMS</span>
       </div>
 
       <div className="flex flex-1 overflow-hidden">
@@ -76,7 +76,7 @@ function AppContent() {
           <div className="flex items-center gap-3">
             <img src="/san-jose-logo.png" alt="San Jose City" className="w-10 h-10 rounded-full bg-white" />
             <div>
-              <h1 className="text-white font-bold text-[16px] tracking-[0.02em]">CBMS</h1>
+              <h1 className="text-white font-bold text-[16px] tracking-[0.02em]">DRHMMS</h1>
               <p className="text-white/70 text-[11px] tracking-[0.02em] mt-0.5">San Jose City · LGU Portal</p>
             </div>
           </div>
@@ -120,7 +120,7 @@ function AppContent() {
           <div className="flex items-center gap-2">
             <img src="/san-jose-logo.png" alt="San Jose City" className="w-9 h-9 rounded-full bg-white" />
             <div>
-              <h1 className="text-white font-bold text-sm tracking-[0.02em]">CBMS</h1>
+              <h1 className="text-white font-bold text-sm tracking-[0.02em]">DRHMMS</h1>
               <p className="text-white/70 text-[10px] tracking-[0.02em]">San Jose City</p>
             </div>
           </div>
@@ -149,7 +149,7 @@ function AppContent() {
               <div className="flex items-center gap-3">
                 <img src="/san-jose-logo.png" alt="San Jose City" className="w-11 h-11 rounded-full bg-white" />
                 <div>
-                  <h1 className="text-white font-bold text-[16px] tracking-[0.02em]">CBMS</h1>
+                  <h1 className="text-white font-bold text-[16px] tracking-[0.02em]">DRHMMS</h1>
                   <p className="text-white/70 text-[11px] tracking-[0.02em] mt-0.5">San Jose City · LGU Portal</p>
                 </div>
               </div>

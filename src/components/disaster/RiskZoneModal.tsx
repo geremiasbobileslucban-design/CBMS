@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { X, AlertTriangle, Droplets, Mountain, Flame, Zap } from 'lucide-react';
-import { RiskZone, RiskLevel } from '../../types/cbms';
+import { RiskZone, RiskLevel } from '../../types/drhmms';
 
 interface RiskZoneModalProps {
   isOpen: boolean;

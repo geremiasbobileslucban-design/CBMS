@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useData } from '../../context/DataContext';
 import { BeneficiaryTable } from './BeneficiaryTable';
-import { Household, SocialProgram } from '../../types/cbms';
+import { Household, SocialProgram } from '../../types/drhmms';
 import { toast } from 'sonner';
 import {
   Search,

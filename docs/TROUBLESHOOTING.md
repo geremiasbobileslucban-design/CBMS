@@ -1,6 +1,6 @@
-# CBMS Troubleshooting Guide
+# DRHMMS Troubleshooting Guide
 
-Common issues and solutions for deploying and running the CBMS application.
+Common issues and solutions for deploying and running the DRHMMS application.
 
 ## 🔍 Quick Diagnostic
 

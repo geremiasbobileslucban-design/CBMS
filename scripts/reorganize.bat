@@ -3,7 +3,7 @@ setlocal enabledelayedexpansion
 
 REM Script to reorganize files for Vite/Vercel deployment (Windows)
 echo ========================================
-echo CBMS Project Reorganization Script
+echo DRHMMS Project Reorganization Script
 echo ========================================
 echo.
 

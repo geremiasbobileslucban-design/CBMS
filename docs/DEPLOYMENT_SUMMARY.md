@@ -1,8 +1,8 @@
-# CBMS Application - Deployment Summary
+# DRHMMS Application - Deployment Summary
 
 ## 🎯 What Was Done
 
-Your CBMS (Community-Based Monitoring System) application has been prepared for deployment to Vercel with a complete production-ready configuration.
+Your DRHMMS (Disaster Risk and Hazard Mapping Monitoring System) application has been prepared for deployment to Vercel with a complete production-ready configuration.
 
 ## 📦 Files Created
 
@@ -43,7 +43,7 @@ Your CBMS (Community-Based Monitoring System) application has been prepared for 
 Your project needs to be organized as follows:
 
 ```
-cbms-app/
+drhmms-app/
 ├── src/                      # Source code directory
 │   ├── components/           # All React components (MUST BE HERE)
 │   │   ├── ui/              # UI components
@@ -63,7 +63,7 @@ cbms-app/
 │   │   └── mockUsers.ts
 │   ├── types/                # TypeScript types (MUST BE HERE)
 │   │   ├── auth.ts
-│   │   └── cbms.ts
+│   │   └── drhmms.ts
 │   ├── styles/               # CSS files (MUST BE HERE)
 │   │   └── globals.css
 │   ├── App.tsx               # Main app component (MUST BE HERE)
@@ -154,7 +154,7 @@ After deployment, test with these accounts:
 | Role | Username | Password |
 |------|----------|----------|
 | PSA Administrator | `psa.admin` | `admin123` |
-| LGU CBMS Focal Person | `lgu.focal` | `focal123` |
+| LGU DRHMMS Focal Person | `lgu.focal` | `focal123` |
 | Data Processor | `data.processor` | `processor123` |
 | Enumerator | `enumerator1` | `enum123` |
 | Planning Officer | `planning.officer` | `planning123` |
@@ -307,7 +307,7 @@ npm audit fix         # Fix vulnerabilities
 
 ## 🎉 Congratulations!
 
-Your CBMS application is now ready for production deployment. All configuration, documentation, and scripts are in place.
+Your DRHMMS application is now ready for production deployment. All configuration, documentation, and scripts are in place.
 
 **You're just 3 steps away from having your app live:**
 

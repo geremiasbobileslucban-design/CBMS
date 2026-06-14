@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# Build Verification Script for CBMS Application
+# Build Verification Script for DRHMMS Application
 # This script checks if your project is ready for deployment
 
 echo "========================================"
-echo "CBMS Build Verification Script"
+echo "DRHMMS Build Verification Script"
 echo "========================================"
 echo ""
 

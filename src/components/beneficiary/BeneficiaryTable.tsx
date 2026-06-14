@@ -1,4 +1,4 @@
-import { Household } from '../../types/cbms';
+import { Household } from '../../types/drhmms';
 import { CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 
 interface BeneficiaryTableProps {
