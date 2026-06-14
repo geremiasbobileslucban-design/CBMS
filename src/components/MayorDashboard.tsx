@@ -8,6 +8,8 @@ import {
 import { useData } from '../context/DataContext';
 import { barangayData, TOTAL_HH, TOTAL_POOR, TOTAL_POP } from '../data/mockData';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { GoogleMapWrapper } from './gis/GoogleMapWrapper';
+import { Household } from '../types/cbms';
 
 // San Jose specific data for the Mayor dashboard
 const SAN_JOSE_DATA = {
@@ -155,7 +157,9 @@ const barangayDensity = [
 ];
 
 export function MayorDashboard() {
+  const { households } = useData();
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [selectedHousehold, setSelectedHousehold] = useState<Household | null>(null);
 
   // Update time every minute
   useEffect(() => {
@@ -604,38 +608,29 @@ export function MayorDashboard() {
             <div className="flex items-center gap-2 text-[13px] font-medium text-gray-900 mb-3">
               City hazard map — San Jose, NE
             </div>
-            <div className="relative bg-[#E1F5EE] rounded-lg h-[180px] overflow-hidden flex items-center justify-center">
-              {/* SVG Map placeholder */}
-              <svg viewBox="0 0 300 148" className="absolute inset-0 w-full h-full">
-                <rect width="300" height="148" fill="#C8ECD9" rx="6"/>
-                <ellipse cx="150" cy="74" rx="115" ry="58" fill="#9FE1CB" opacity=".6"/>
-                <ellipse cx="148" cy="72" rx="80" ry="40" fill="#5DCAA5" opacity=".3"/>
-                <circle cx="90" cy="62" r="30" fill="#F09595" opacity=".65"/>
-                <circle cx="180" cy="85" r="24" fill="#FAC775" opacity=".65"/>
-                <circle cx="148" cy="48" r="18" fill="#F09595" opacity=".55"/>
-                <circle cx="125" cy="95" r="14" fill="#FAC775" opacity=".55"/>
-                <circle cx="175" cy="60" r="11" fill="#C0DD97" opacity=".75"/>
-                <circle cx="210" cy="65" r="9" fill="#C0DD97" opacity=".7"/>
-                <circle cx="90" cy="62" r="5" fill="#A32D2D"/>
-                <circle cx="180" cy="85" r="5" fill="#854F0B"/>
-                <circle cx="148" cy="48" r="5" fill="#A32D2D"/>
-                <circle cx="125" cy="95" r="5" fill="#854F0B"/>
-                <circle cx="175" cy="60" r="4" fill="#3B6D11"/>
-                <circle cx="210" cy="65" r="4" fill="#3B6D11"/>
-                <text x="90" y="57" fontSize="6" fill="#791F1F" textAnchor="middle" fontFamily="sans-serif">Ilog Malino</text>
-                <text x="148" y="43" fontSize="6" fill="#791F1F" textAnchor="middle" fontFamily="sans-serif">Sto. Tomas</text>
-                <text x="180" y="80" fontSize="6" fill="#633806" textAnchor="middle" fontFamily="sans-serif">Caanawan</text>
-              </svg>
+            <div className="border border-gray-200 rounded-lg overflow-hidden">
+              <GoogleMapWrapper
+                households={households}
+                selectedHousehold={selectedHousehold}
+                onHouseholdSelect={setSelectedHousehold}
+                showHouseholds={true}
+                showFloodZones={true}
+                showEvacuationCenters={true}
+                height={220}
+              />
             </div>
             <div className="flex gap-2 mt-3 flex-wrap">
-              <span className="px-2 py-0.5 text-[10px] font-medium bg-red-100 text-red-700 border border-red-200 rounded-full">
-                ● Flood zone
+              <span className="flex items-center gap-1.5 text-[10px] text-gray-600">
+                <span className="w-2.5 h-2.5 rounded-full bg-red-500"></span> High Risk
               </span>
-              <span className="px-2 py-0.5 text-[10px] font-medium bg-amber-100 text-amber-700 border border-amber-200 rounded-full">
-                ● Landslide
+              <span className="flex items-center gap-1.5 text-[10px] text-gray-600">
+                <span className="w-2.5 h-2.5 rounded-full bg-yellow-500"></span> Medium Risk
               </span>
-              <span className="px-2 py-0.5 text-[10px] font-medium bg-green-100 text-green-700 border border-green-200 rounded-full">
-                ● Safe zone
+              <span className="flex items-center gap-1.5 text-[10px] text-gray-600">
+                <span className="w-2.5 h-2.5 rounded-full bg-green-500"></span> Low Risk
+              </span>
+              <span className="flex items-center gap-1.5 text-[10px] text-gray-600">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-600"></span> Evacuation Center
               </span>
             </div>
           </div>
