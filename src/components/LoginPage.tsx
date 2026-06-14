@@ -236,6 +236,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                 { key: 'focal', role: 'LGU Focal Person', user: 'focal.sjc' },
                 { key: 'processor', role: 'Data Processor', user: 'processor.sjc' },
                 { key: 'enumerator', role: 'Enumerator', user: 'enum.caanawan' },
+                { key: 'barangay', role: 'Barangay Official', user: 'barangay.official' },
                 { key: 'mayor', role: 'Mayor', user: 'mayor.sjc' },
               ].map((demo) => (
                 <button

@@ -17,11 +17,12 @@ import {
   Download,
   Plus,
   Pencil,
-  Trash2
+  Trash2,
+  Wind
 } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 
-type TabId = 'overview' | 'map' | 'vulnerable' | 'evacuation';
+type TabId = 'overview' | 'map' | 'vulnerable' | 'evacuation' | 'windy';
 
 export function DisasterRisk() {
   const { riskZones, addRiskZone, updateRiskZone, deleteRiskZone, evacuationCenters, households } = useData();
@@ -64,6 +65,7 @@ export function DisasterRisk() {
   const tabs = [
     { id: 'overview' as TabId, label: 'Overview', shortLabel: 'Overview', icon: BarChart3 },
     { id: 'map' as TabId, label: 'Risk Map', shortLabel: 'Map', icon: Map },
+    { id: 'windy' as TabId, label: 'Windy', shortLabel: 'Windy', icon: Wind },
     { id: 'vulnerable' as TabId, label: 'Vulnerable Registry', shortLabel: 'Vulnerable', icon: Users },
     { id: 'evacuation' as TabId, label: 'Evacuation Centers', shortLabel: 'Evacuation', icon: Building2 },
   ];
@@ -436,6 +438,38 @@ export function DisasterRisk() {
       {/* Vulnerable Registry Tab */}
       {activeTab === 'vulnerable' && (
         <VulnerableMembersList />
+      )}
+
+      {/* Windy Tab */}
+      {activeTab === 'windy' && (
+        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+          <div className="px-4 py-4 border-b border-gray-200 bg-[#f8fafc]">
+            <h3 className="text-base font-semibold text-[#0a1c33]">Windy Waves Map</h3>
+            <p className="text-sm text-[#475569] mt-1">Live wave and weather visualization from Windy.</p>
+          </div>
+          {/* <div className="px-4 py-4 border-b border-gray-200 bg-[#f8fafc] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div>
+              <p className="text-sm text-[#475569]">If Windy cannot render, open the live map in a new tab.</p>
+            </div>
+            <a
+              href="https://www.windy.com/-Waves-waves?waves,12.997,121.745,6"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center justify-center rounded-lg bg-[#143a63] px-4 py-2 text-sm font-medium text-white hover:bg-[#0f2642] transition-colors"
+            >
+              Open Windy in new tab
+            </a>
+          </div> */}
+          <div className="w-full h-[calc(100vh-220px)] min-h-[420px]">
+            <iframe
+              title="Windy Waves"
+              src="https://embed.windy.com/embed2.html?lat=12.997&lon=121.745&zoom=6&level=surface&overlay=waves&menu=&message=&marker=&calendar=now&pressure=&type=map"
+              className="w-full h-full"
+              frameBorder="0"
+              allowFullScreen
+            />
+          </div>
+        </div>
       )}
 
       {/* Evacuation Centers Tab */}

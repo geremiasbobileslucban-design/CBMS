@@ -9,6 +9,9 @@ export interface GeoLocation {
 // Disaster Risk Types
 export type RiskLevel = 'Low' | 'Medium' | 'High' | 'Very High' | 'Critical';
 
+export type IncidentType = 'Flood' | 'Landslide' | 'Fire' | 'Road Accident' | 'Structural Damage' | 'Power Outage' | 'Other';
+export type IncidentStatus = 'Reported' | 'Under Verification' | 'Ongoing Response' | 'Resolved' | 'Closed';
+
 export interface DisasterRiskProfile {
   floodRisk: RiskLevel;
   landslideRisk: RiskLevel;
@@ -45,6 +48,30 @@ export interface RiskZone {
   barangays: string[];
   description: string;
   affectedHouseholds: number;
+}
+
+export interface IncidentReport {
+  id: string;
+  type: IncidentType;
+  title: string;
+  description: string;
+  incidentDate: string;
+  barangay: string;
+  municipality: string;
+  address: string;
+  location?: GeoLocation;
+  severity: 'Low' | 'Medium' | 'High' | 'Critical';
+  affectedFamilies: number;
+  affectedIndividuals: number;
+  casualties: number;
+  injuries: number;
+  missingPersons: number;
+  attachments?: string[];
+  reporterName: string;
+  contactNumber: string;
+  status: IncidentStatus;
+  createdAt: string;
+  updatedAt: string;
 }
 
 // Evacuation Center
@@ -254,8 +281,8 @@ export interface Household {
 // Offline Sync Types
 export interface PendingSyncItem {
   id: string;
-  type: 'household' | 'enrollment' | 'update';
-  data: Household | BeneficiaryEnrollment;
+  type: 'household' | 'enrollment' | 'incident' | 'update';
+  data: Household | BeneficiaryEnrollment | IncidentReport;
   timestamp: string;
   attempts: number;
 }

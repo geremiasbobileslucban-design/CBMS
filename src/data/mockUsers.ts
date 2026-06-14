@@ -74,6 +74,18 @@ export const mockUsers: User[] = [
     createdAt: '2023-05-01T00:00:00',
   },
   {
+    id: '8',
+    username: 'barangay.official',
+    email: 'barangay.official@sjc.gov.ph',
+    fullName: 'Ana B. Barangay',
+    role: 'Enumerator',
+    lgu: 'Barangay San Agustin, San Jose City',
+    province: 'Nueva Ecija',
+    isActive: true,
+    lastLogin: '2024-02-05T09:30:00',
+    createdAt: '2023-06-01T00:00:00',
+  },
+  {
     id: '7',
     username: 'mayor.sjc',
     email: 'mayor@sjc.gov.ph',
@@ -94,5 +106,6 @@ export const demoCredentials = {
   processor: { username: 'processor.sjc', password: 'process123' },
   enumerator: { username: 'enum.caanawan', password: 'enum123' },
   planning: { username: 'planning.sjc', password: 'plan123' },
+  barangay: { username: 'barangay.official', password: 'barangay123' },
   mayor: { username: 'mayor.sjc', password: 'mayor123' },
 };

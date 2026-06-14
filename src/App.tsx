@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { DataProvider } from './context/DataContext';
+import { DataProvider, useData } from './context/DataContext';
 import { Toaster } from './components/ui/sonner';
 import { LoginPage } from './components/LoginPage';
 import { Dashboard } from './components/Dashboard';
@@ -10,18 +10,22 @@ import { Reports } from './components/Reports';
 import { HouseholdList } from './components/HouseholdList';
 import { UserManagement } from './components/UserManagement';
 import { DisasterRisk } from './components/disaster';
+import { IncidentReporting } from './components/IncidentReporting';
 import { Beneficiaries } from './components/beneficiary';
 import { SyncStatus } from './components/SyncStatus';
-import { LayoutDashboard, Database, BarChart3, FileText, Users, UserCog, LogOut, Menu, X, AlertTriangle, Heart } from 'lucide-react';
+import { LayoutDashboard, Database, BarChart3, FileText, Users, UserCog, LogOut, Menu, X, AlertTriangle, Heart, MapPin } from 'lucide-react';
 import { User } from './types/auth';
 import { rolePermissions } from './types/auth';
 
-type View = 'dashboard' | 'collection' | 'households' | 'analytics' | 'reports' | 'users' | 'disaster' | 'beneficiaries';
+type View = 'dashboard' | 'collection' | 'households' | 'analytics' | 'reports' | 'users' | 'disaster' | 'beneficiaries' | 'incident';
 
 function AppContent() {
   const [user, setUser] = useState<User | null>(null);
   const [currentView, setCurrentView] = useState<View>('dashboard');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { incidentReports } = useData();
+
+  const newReportCount = incidentReports.filter(report => report.status === 'Reported').length;
 
   const handleLogin = (loggedInUser: User) => {
     setUser(loggedInUser);
@@ -51,6 +55,7 @@ function AppContent() {
     { id: 'collection' as View, label: 'Data Collection', icon: Database, show: permissions.canCollectData },
     { id: 'households' as View, label: 'Database', icon: Users, show: permissions.canViewReports },
     { id: 'disaster' as View, label: 'Disaster Risk Monitoring', icon: AlertTriangle, show: permissions.canAccessDisasterRisk },
+    { id: 'incident' as View, label: `Incident Reports${newReportCount > 0 ? ` (${newReportCount})` : ''}`, icon: MapPin, show: permissions.canReportIncidents },
     { id: 'beneficiaries' as View, label: 'Beneficiaries', icon: Heart, show: permissions.canViewBeneficiaries },
     { id: 'analytics' as View, label: 'Analytics', icon: BarChart3, show: permissions.canAccessAnalytics },
     { id: 'reports' as View, label: 'Reports', icon: FileText, show: permissions.canViewReports },
@@ -274,6 +279,7 @@ function AppContent() {
           {currentView === 'collection' && permissions.canCollectData && <DataCollection />}
           {currentView === 'households' && permissions.canViewReports && <HouseholdList />}
           {currentView === 'disaster' && permissions.canAccessDisasterRisk && <DisasterRisk />}
+          {currentView === 'incident' && permissions.canReportIncidents && <IncidentReporting />}
           {currentView === 'beneficiaries' && permissions.canViewBeneficiaries && <Beneficiaries />}
           {currentView === 'analytics' && permissions.canAccessAnalytics && <Analytics />}
           {currentView === 'reports' && permissions.canViewReports && <Reports />}

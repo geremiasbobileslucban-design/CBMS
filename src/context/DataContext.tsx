@@ -5,6 +5,7 @@ import {
   EvacuationCenter,
   SocialProgram,
   BeneficiaryEnrollment,
+  IncidentReport,
   PendingSyncItem,
   SyncStatus as SyncStatusType
 } from '../types/drhmms';
@@ -23,6 +24,7 @@ const STORAGE_KEYS = {
   ENROLLMENTS: 'drhmms_enrollments',
   PENDING_SYNC: 'drhmms_pending_sync',
   RISK_ZONES: 'drhmms_risk_zones',
+  INCIDENT_REPORTS: 'drhmms_incident_reports',
 };
 
 interface DataContextType {
@@ -46,6 +48,9 @@ interface DataContextType {
   deleteRiskZone: (id: string) => void;
   evacuationCenters: EvacuationCenter[];
   updateEvacuationCenter: (id: string, center: EvacuationCenter) => void;
+  incidentReports: IncidentReport[];
+  addIncidentReport: (report: IncidentReport) => void;
+  updateIncidentReport: (id: string, report: IncidentReport) => void;
 
   // Beneficiary data
   socialPrograms: SocialProgram[];
@@ -95,6 +100,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
     loadFromStorage(STORAGE_KEYS.RISK_ZONES, mockRiskZones)
   );
   const [evacuationCenters, setEvacuationCenters] = useState<EvacuationCenter[]>(mockEvacuationCenters);
+  const [incidentReports, setIncidentReports] = useState<IncidentReport[]>(() =>
+    loadFromStorage(STORAGE_KEYS.INCIDENT_REPORTS, [])
+  );
 
   // Beneficiary data
   const [socialPrograms] = useState<SocialProgram[]>(mockSocialPrograms);
@@ -138,6 +146,11 @@ export function DataProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     saveToStorage(STORAGE_KEYS.RISK_ZONES, riskZones);
   }, [riskZones]);
+
+  // Persist incident reports to localStorage
+  useEffect(() => {
+    saveToStorage(STORAGE_KEYS.INCIDENT_REPORTS, incidentReports);
+  }, [incidentReports]);
 
   // Persist pending sync items
   useEffect(() => {
@@ -214,6 +227,24 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   const deleteRiskZone = (id: string) => {
     setRiskZones(prev => prev.filter(z => z.id !== id));
+  };
+
+  // Incident reporting operations
+  const addIncidentReport = (report: IncidentReport) => {
+    setIncidentReports(prev => [report, ...prev]);
+    if (!isOnline) {
+      addPendingSync({
+        id: `sync-${Date.now()}`,
+        type: 'incident',
+        data: report,
+        timestamp: new Date().toISOString(),
+        attempts: 0,
+      });
+    }
+  };
+
+  const updateIncidentReport = (id: string, report: IncidentReport) => {
+    setIncidentReports(prev => prev.map(r => r.id === id ? report : r));
   };
 
   // Evacuation center operations
@@ -297,6 +328,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
         deleteRiskZone,
         evacuationCenters,
         updateEvacuationCenter,
+        incidentReports,
+        addIncidentReport,
+        updateIncidentReport,
         socialPrograms,
         enrollments,
         addEnrollment,

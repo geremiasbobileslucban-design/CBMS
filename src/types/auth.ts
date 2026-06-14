@@ -32,6 +32,7 @@ export const rolePermissions: Record<UserRole, {
   canExportData: boolean;
   canAccessAnalytics: boolean;
   canAccessDisasterRisk: boolean;
+  canReportIncidents: boolean;
   canManageBeneficiaries: boolean;
   canViewBeneficiaries: boolean;
   accessLevel: string;
@@ -44,6 +45,7 @@ export const rolePermissions: Record<UserRole, {
     canExportData: true,
     canAccessAnalytics: true,
     canAccessDisasterRisk: true,
+    canReportIncidents: false,
     canManageBeneficiaries: true,
     canViewBeneficiaries: true,
     accessLevel: 'National',
@@ -56,6 +58,7 @@ export const rolePermissions: Record<UserRole, {
     canExportData: true,
     canAccessAnalytics: true,
     canAccessDisasterRisk: true,
+    canReportIncidents: false,
     canManageBeneficiaries: true,
     canViewBeneficiaries: true,
     accessLevel: 'LGU',
@@ -68,6 +71,7 @@ export const rolePermissions: Record<UserRole, {
     canExportData: true,
     canAccessAnalytics: false,
     canAccessDisasterRisk: true,
+    canReportIncidents: false,
     canManageBeneficiaries: false,
     canViewBeneficiaries: true,
     accessLevel: 'LGU',
@@ -80,6 +84,7 @@ export const rolePermissions: Record<UserRole, {
     canExportData: false,
     canAccessAnalytics: false,
     canAccessDisasterRisk: false,
+    canReportIncidents: true,
     canManageBeneficiaries: false,
     canViewBeneficiaries: false,
     accessLevel: 'Barangay',
@@ -92,6 +97,7 @@ export const rolePermissions: Record<UserRole, {
     canExportData: true,
     canAccessAnalytics: true,
     canAccessDisasterRisk: true,
+    canReportIncidents: false,
     canManageBeneficiaries: true,
     canViewBeneficiaries: true,
     accessLevel: 'LGU',
@@ -104,6 +110,7 @@ export const rolePermissions: Record<UserRole, {
     canExportData: true,
     canAccessAnalytics: true,
     canAccessDisasterRisk: true,
+    canReportIncidents: false,
     canManageBeneficiaries: false,
     canViewBeneficiaries: true,
     accessLevel: 'City',
